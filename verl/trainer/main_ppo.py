@@ -17,18 +17,19 @@ Note that we don't combine the main with ray_trainer as ray_trainer is used by o
 
 from verl import DataProto
 import torch
-from verl.utils.reward_score import gsm8k, math
+from verl.utils.reward_score import gsm8k, math, opencoder
 from verl.trainer.ppo.ray_trainer import RayPPOTrainer
-
+import os
 
 def _default_compute_score(data_source, solution_str, ground_truth):
     if data_source == 'openai/gsm8k':
         return gsm8k.compute_score(solution_str, ground_truth)
     elif data_source in ['lighteval/MATH', 'DigitalLearningGmbH/MATH-lighteval']:
         return math.compute_score(solution_str, ground_truth)
-    else:
+    elif data_source in ['OpenCoder-LLM/opc-sft-stage2[educational_instruct]']:
+        return opencoder.compute_score(solution_str, ground_truth)
+    else:    
         raise NotImplementedError
-
 
 class RewardManager():
     """The reward manager.
@@ -98,12 +99,19 @@ def main(config):
     run_ppo(config)
 
 
+
 def run_ppo(config, compute_score=None):
     if not ray.is_initialized():
+        
         # this is for local ray cluster
-        ray.init(runtime_env={'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'NCCL_DEBUG': 'WARN'}})
+        if config.data.custom_temp_dir:
+            os.makedirs(config.data.custom_temp_dir, exist_ok=True)
+            ray.init(runtime_env={'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'NCCL_DEBUG': 'WARN'}},_temp_dir=config.data.custom_temp_dir)
+        else:
+            ray.init(runtime_env={'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'NCCL_DEBUG': 'WARN'}})
 
     ray.get(main_task.remote(config, compute_score))
+
 
 
 @ray.remote
