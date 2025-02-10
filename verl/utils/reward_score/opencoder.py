@@ -49,14 +49,17 @@ def format_prompt(problem: str,
 def compute_score(solution_str: str, ground_truth: Union[str,dict]) -> float:
     #retval = 0.
     try:
+        
         if isinstance(ground_truth, dict):
+            
             solution = sanitize(solution_str,ground_truth.get("entry_point") )
+            print(solution)
             code =  "\n".join(PYTHON_IMPORTS)  + "\n"+ solution + "\n" + ground_truth['tests']
                 
         else:
             solution = sanitize(solution_str )
-            code =  "\n".join(PYTHON_IMPORTS)  + "\n" + solution + "\n" + ground_truth
-        feedback = check_correctness(task_id = 0, completion_id=0,    solution=code,time_out=999)
+            code =  "\n".join(PYTHON_IMPORTS)  + "\n" + solution + "\n" + ground_truth 
+        feedback = check_correctness(task_id = 0, completion_id=0,    solution=code,time_out=9)
         #print(code,(feedback['result']))
         return float(feedback["passed"])
     except Exception as e:
