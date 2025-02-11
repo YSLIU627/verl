@@ -53,7 +53,7 @@ def compute_score(solution_str: str, ground_truth: Union[str,dict]) -> float:
         if isinstance(ground_truth, dict):
             
             solution = sanitize(solution_str,ground_truth.get("entry_point") )
-            print(solution)
+            #print(solution)
             code =  "\n".join(PYTHON_IMPORTS)  + "\n"+ solution + "\n" + ground_truth['tests']
                 
         else:

@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
         return process_fn
     dataset = datasets.load_dataset(args.get_data_dir, trust_remote_code=True)['train']
-    train_dataset = dataset.map(function=make_map_fn(), with_indices=True)
+    train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
     if args.push_to_hub_dir:
         train_dataset.push_to_hub(args.push_to_hub_dir)
     elif args.save_dir:
