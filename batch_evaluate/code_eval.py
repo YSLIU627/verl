@@ -42,7 +42,7 @@ if __name__ == '__main__':
                     example["rewards"] = compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
                 except:
                     example["rewards"] = compute_score(response, test)
-                    example["mean_reward"] = example["rewards"]
+                example["mean_reward"] = example["rewards"]
             return example
 
         return process_fn

@@ -64,5 +64,5 @@ def compute_score(solution_str: str, ground_truth: Union[str,dict]) -> float:
         return float(feedback["passed"])
     except Exception as e:
         print(e)
-
+        return 0.
     #eturn retval, feedback
