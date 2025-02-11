@@ -59,7 +59,7 @@ def compute_score(solution_str: str, ground_truth: Union[str,dict]) -> float:
         else:
             solution = sanitize(solution_str )
             code =  "\n".join(PYTHON_IMPORTS)  + "\n" + solution + "\n" + ground_truth 
-        feedback = check_correctness(task_id = 0, completion_id=0,    solution=code,time_out=9)
+        feedback = check_correctness(task_id = 0, completion_id=0,    solution=code,time_out=6)
         #print(code,(feedback['result']))
         return float(feedback["passed"])
     except Exception as e:
