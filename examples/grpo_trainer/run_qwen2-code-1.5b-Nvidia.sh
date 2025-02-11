@@ -1,20 +1,21 @@
 #set -x
-export CUDA_VISIBLE_DEVICE=6,7,8,9
+#export CUDA_VISIBLE_DEVICE=6,7,8,9
 
 ### task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=opencoder
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 START_IDX=0
-END_IDX=2000
+END_IDX=35000
+REMOTE_DATA_PATH=jwang2373/updated-code-opc2-edufiltered
 
 
 ### preprocess the dataset
 if [ -z "${START_IDX:-}" ]; then
     DATA_PATH_SUFF=${TASK_NAME}
-    python3 examples/data_preprocess/${TASK_NAME}.py --local_dir $HOME/data/$DATA_PATH_SUFF 
+    python3 examples/data_preprocess/${TASK_NAME}.py --local_dir $HOME/data/$DATA_PATH_SUFF --data_remote_dir $REMOTE_DATA_PATH
 else
     DATA_PATH_SUFF=${TASK_NAME}_${START_IDX}_${END_IDX}
-    python3 examples/data_preprocess/${TASK_NAME}.py --local_dir $HOME/data/$DATA_PATH_SUFF --sample_start_idx $START_IDX --sample_end_idx $END_IDX
+    python3 examples/data_preprocess/${TASK_NAME}.py --local_dir $HOME/data/$DATA_PATH_SUFF --sample_start_idx $START_IDX --sample_end_idx $END_IDX --data_remote_dir $REMOTE_DATA_PATH
 fi
 
 export HYDRA_FULL_ERROR=1

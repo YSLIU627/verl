@@ -34,17 +34,22 @@ if __name__ == '__main__':
     parser.add_argument('--hdfs_dir', default=None)
     parser.add_argument("--sample_start_idx", default=0, type=int)
     parser.add_argument("--sample_end_idx", default=99999999, type=int)
+    parser.add_argument("--data_remote_dir",default = 'OpenCoder-LLM/opc-sft-stage2',type = str)
     args = parser.parse_args()
 
     # 'lighteval/MATH' is no longer available on huggingface.
     # Use mirror repo: DigitalLearningGmbH/MATH-lighteval
     data_source = 'OpenCoder-LLM/opc-sft-stage2[educational_instruct]'
-    print(f"Loading the {data_source} dataset from huggingface...", flush=True)
-    dataset = datasets.load_dataset('OpenCoder-LLM/opc-sft-stage2', "educational_instruct", trust_remote_code=True)['train']
+    print(f"Loading the {args.data_remote_dir} dataset from huggingface...", flush=True)
+    if args.data_remote_dir == 'OpenCoder-LLM/opc-sft-stage2':
+        dataset = datasets.load_dataset('OpenCoder-LLM/opc-sft-stage2', "educational_instruct", trust_remote_code=True)['train']
+    else:
+        dataset = datasets.load_dataset(args.data_remote_dir, trust_remote_code=True)['train']
 
-    train_dataset = dataset.select(range(args.sample_start_idx, min(args.sample_end_idx, len(dataset)) ))
-    test_dataset = dataset.select(range(int(0.95*(args.sample_end_idx - args.sample_start_idx) + args.sample_start_idx),  min(args.sample_end_idx, len(dataset)) ))
-
+    dataset = dataset.select(range(args.sample_start_idx, min(args.sample_end_idx, len(dataset)) ))
+    dataset =  dataset.train_test_split(test_size=0.05, seed=42)
+    train_dataset = dataset['train']
+    test_dataset = dataset['test']
     #instruction_following = "Let's think step by step and output the final answer within \\boxed{}."
 
     # add a row to each data item that represents a unique id
