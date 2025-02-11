@@ -11,6 +11,7 @@ data:
   return_raw_chat: False
   save_ppo_rollouts_path: ""
   custom_temp_dir: False
+  shuffle: True
 
 actor_rollout_ref:
   hybrid_engine: True
@@ -144,6 +145,7 @@ reward_model:
   ulysses_sequence_parallel_size: 1 # sp size
   use_dynamic_bsz: ${critic.use_dynamic_bsz}
   forward_max_token_len_per_gpu: ${critic.forward_max_token_len_per_gpu}
+  reward_manager: naive
 
 algorithm:
   gamma: 1.0
@@ -160,10 +162,14 @@ trainer:
   project_name: verl_examples
   experiment_name: gsm8k
   logger: [ 'console', 'wandb' ]
+  val_generations_to_log_to_wandb: 0
   nnodes: 1
   n_gpus_per_node: 8
   save_freq: -1
+  # auto: find the last ckpt to resume. If can't find, start from scratch
+  resume_mode: auto # or auto or resume_path if 
+  resume_from_path: False
   test_freq: -1
   critic_warmup: 0
-  default_hdfs_dir: ~/experiments/gsm8k/ppo/${trainer.experiment_name}
+  default_hdfs_dir: null
   default_local_dir: checkpoints/${trainer.project_name}/${trainer.experiment_name}
