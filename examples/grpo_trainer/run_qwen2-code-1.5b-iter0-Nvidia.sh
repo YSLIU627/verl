@@ -34,8 +34,8 @@ python3 -m verl.trainer.main_ppo \
     data.val_files=${DATA_LOCAL_PREFIX}/data/$DATA_PATH_SUFF/test.parquet \
     data.train_batch_size=1024 \
     data.val_batch_size=1312 \
-    data.max_prompt_length=1024 \
-    data.max_response_length=1024 \
+    data.max_prompt_length=2048 \
+    data.max_response_length=2048 \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-Coder-1.5B-Instruct \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -63,6 +63,6 @@ python3 -m verl.trainer.main_ppo \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
-    trainer.save_freq=-1 \
-    trainer.test_freq=50 \
-    trainer.total_epochs=15 $@
+    trainer.save_freq=25 \
+    trainer.test_freq=25 \
+    trainer.total_epochs=1 $@

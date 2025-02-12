@@ -112,7 +112,7 @@ class PrimeRewardManager:
                                              sequences_str,
                                              ground_truth,
                                              data_sources,
-                                             num_processes=min(64,os.cpu_count())))
+                                             num_processes=min(72,os.cpu_count())))
         except asyncio.TimeoutError as e:
             print('Global timeout in reward computing! Setting all as 0.')
             scores = [0. for _ in range(len(sequences_str))]
