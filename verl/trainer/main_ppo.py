@@ -19,8 +19,9 @@ from verl import DataProto
 import torch
 from verl.utils.reward_score import gsm8k, math
 from verl.trainer.ppo.ray_trainer import RayPPOTrainer
-
-
+from typing import Dict, List, Union, Iterable, Callable, Literal
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 def _default_compute_score(data_source, solution_str, ground_truth):
     if data_source == 'openai/gsm8k':
         return gsm8k.compute_score(solution_str, ground_truth)
@@ -29,7 +30,36 @@ def _default_compute_score(data_source, solution_str, ground_truth):
     else:
         raise NotImplementedError
 
+def multi_process_function(function: Callable,
+                           parameters: List,
+                           num_workers: int = 1,
+                           desc: str = "Completing tasks"):
+    """_summary_
 
+    Args:
+        function (Callable): _description_
+        parameters (List): contains a list of Dict: Dict{ id, data}
+        num_workers (int, optional): _description_. Defaults to 1.
+        desc (str, optional): _description_. Defaults to "Completing tasks".
+
+    Returns:
+        _type_: _description_
+    """
+    if num_workers > len(parameters) or num_workers > os.cpu_count():
+        num_workers = min(os.cpu_count(), len(parameters))
+
+    with ThreadPoolExecutor(num_workers) as executor:
+        futures = []
+        for param in parameters:
+            future = executor.submit(function, param['data'])
+            futures.append({'future':future, id: param['id']})
+            
+        results = []
+        for future in tqdm(as_completed(futures), total=len(futures), desc=desc):
+            result = future.result()
+            results.append(result)
+
+    return results
 class RewardManager():
     """The reward manager.
     """

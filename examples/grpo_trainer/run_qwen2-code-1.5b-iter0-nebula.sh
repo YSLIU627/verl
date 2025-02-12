@@ -1,5 +1,5 @@
 #set -x
-export CUDA_VISIBLE_DEVICE=0
+export CUDA_VISIBLE_DEVICES=6,7,8,9
 
 ### task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=opencoder
@@ -7,6 +7,10 @@ TASK_NAME=opencoder
 START_IDX=0
 END_IDX=35000
 REMOTE_DATA_PATH=jwang2373/updated-code-opc2-edufiltered
+SAVE_LOCAL_DIR_PREFIX='checkpoints/'
+PROJECT_NAME=qwen2.5_code_1.5b_grpo
+EXPERIMENT_NAME=qwen2.5_code_1.5b_grpo_iter0
+SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
 
 ### preprocess the dataset
 if [ -z "${START_IDX:-}" ]; then
@@ -22,6 +26,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
+    reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/ \
     data.save_ppo_rollouts_path=rollouts/qwen2.5_code_1.5b_grpo/ \
     data.train_files=$HOME/data/$DATA_PATH_SUFF/train.parquet \
@@ -52,9 +57,10 @@ python3 -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    trainer.project_name='qwen2.5_code_1.5b' \
-    trainer.experiment_name='qwen2.5_code_1.5b' \
-    trainer.n_gpus_per_node=1 \
+    trainer.project_name=${PROJECT_NAME} \
+    trainer.experiment_name=${EXPERIMENT_NAME} \
+    trainer.default_local_dir=${SAVE_LOCAL_DIR} \
+    trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=-1 \
     trainer.test_freq=50 \

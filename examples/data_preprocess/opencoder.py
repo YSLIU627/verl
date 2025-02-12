@@ -28,7 +28,7 @@ def extract_solution(solution_str):
     return remove_boxed(last_boxed_only_string(solution_str))
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--local_dir', default='~/data/code')
     parser.add_argument('--hdfs_dir', default=None)
@@ -36,6 +36,14 @@ if __name__ == '__main__':
     parser.add_argument("--sample_end_idx", default=99999999, type=int)
     parser.add_argument("--data_remote_dir",default = 'OpenCoder-LLM/opc-sft-stage2',type = str)
     args = parser.parse_args()
+
+    from pathlib import Path
+
+    file_path = Path(os.path.join(args.local_dir, 'train.parquet'))
+
+    if file_path.exists() and file_path.suffix == ".parquet":
+        print("file existed")
+        return 
 
     # 'lighteval/MATH' is no longer available on huggingface.
     # Use mirror repo: DigitalLearningGmbH/MATH-lighteval
@@ -96,3 +104,5 @@ if __name__ == '__main__':
         makedirs(hdfs_dir)
 
         copy(src=local_dir, dst=hdfs_dir)
+if __name__ == '__main__':
+    main()
