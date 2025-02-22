@@ -125,7 +125,7 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, opt
     sumexpadv = torch.exp((advantage - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
     logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
     logsumexpadv.repeat(rollout_n , dim=0)
-    data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch['advantages']
+    data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch[optimism_term]
     metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy(),"optimistic_coef":coef, f"optimistic_{optimism_term}": data.batch[f'optimistic_{optimism_term}'].cpu().numpy()} 
     return data, metrics
 
