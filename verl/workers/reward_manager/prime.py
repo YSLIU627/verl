@@ -101,7 +101,7 @@ class PrimeRewardManager:
         self.num_examine = num_examine  # the number of batches of decoded responses to print to the console
         self.compute_score = compute_score or _default_compute_score
 
-    def __call__(self, data: DataProto, return_info = False):
+    def __call__(self, data: DataProto, return_info = False, sequences_str = None):
         """We will expand this function gradually based on the available datasets"""
 
         # If there is rm score, we directly return rm score. Otherwise, we compute via rm_score_fn
@@ -116,11 +116,9 @@ class PrimeRewardManager:
         prompt_ids = data.batch['prompts']
         prompt_length = prompt_ids.shape[-1]
         valid_response_length = data.batch['attention_mask'][:, prompt_length:].sum(dim=-1)
-        if 'responses_str' not in data.non_tensor_batch.keys():
+        if sequences_str is None:
             response_ids = data.batch['responses']
             sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
-        else:
-            sequences_str = data.non_tensor_batch['responses_str']
         ground_truth = [data_item.non_tensor_batch['reward_model']['ground_truth'] for data_item in data]
         data_sources = data.non_tensor_batch['data_source']
 

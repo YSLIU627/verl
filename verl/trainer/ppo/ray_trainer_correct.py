@@ -879,8 +879,8 @@ class RayPPOTrainer(object):
                         prompt_length = prompt_ids.shape[-1]
                         response_ids = batch.batch['responses']
                         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
-                        batch.non_tensor_batch["sequences_str"] = sequences_str
-                        reward_tensor, infos = self.reward_fn(batch, return_info = True)
+                        
+                        reward_tensor, infos = self.reward_fn(batch, return_info = True, sequences_str = sequences_str)
                         batch.batch['token_level_scores'] = reward_tensor
                         for info, prompt, response, reward in zip(infos, prompts, sequences_str, reward_tensor):
                             
@@ -911,10 +911,10 @@ class RayPPOTrainer(object):
                         gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(DataProto.concat(list_batch))
                         batch_correction = gen_batch_output_correction.union(pre_batch)
                         
-                        batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": batch_correction.batch["attention_mask"] * batch.batch["attention_mask"], "position_ids":batch_correction.batch["position_ids"]})
+                        batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": batch_correction.batch["attention_mask"] * batch.batch["attention_mask"], "position_ids":batch_correction.batch["position_ids"], "responses": batch_correction.batch["responses"]})
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
-                    batch_correction.meta_info['correction_global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
+                    batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
                     # recompute old_log_probs
                     assert self.use_reference_policy
                     if self.use_reference_policy:

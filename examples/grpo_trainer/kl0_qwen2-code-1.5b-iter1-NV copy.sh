@@ -5,12 +5,15 @@ export CUDA_VISIBLE_DEVICES=2,3,4,5
 TASK_NAME=opencoder
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 #START_IDX=0
-END_IDX=2000
+#END_IDX=2000
+KL_CORRECTION=0
 REMOTE_DATA_PATH=ZHLiu627/dataset_qwen2.5_code_1.5b_grpo_iter0_full_data_miao_0212_2_global_step_70filtered_v1
 SAVE_LOCAL_DIR_PREFIX='checkpoints/'
-PROJECT_NAME=qwen2.5_code_0.5b_grpo
-EXPERIMENT_NAME=debug
+PROJECT_NAME=qwen2.5_code_1.5b_grpo
+MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B-Instruct
+EXPERIMENT_NAME=correction_with_kl${KL_CORRECTION}
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
+
 
 ### preprocess the dataset
 if [ -z "${START_IDX:-}" ]; then
@@ -26,6 +29,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo_correct \
     algorithm.adv_estimator=grpo \
+    algorithm.kl_coef_correction=${KL_CORRECTION} \
     reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/ \
     data.save_ppo_rollouts_path=rollouts/qwen2.5_code_0.5b_grpo/ \
@@ -35,7 +39,7 @@ python3 -m verl.trainer.main_ppo_correct \
     data.val_batch_size=1312 \
     data.max_prompt_length=2048 \
     data.max_response_length=2048 \
-    actor_rollout_ref.model.path=Qwen/Qwen2.5-Coder-0.5B-Instruct \
+    actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=256 \
