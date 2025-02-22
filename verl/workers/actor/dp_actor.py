@@ -200,7 +200,7 @@ class DataParallelPPOActor(BasePPOActor):
 
         return log_probs
 
-    def update_policy(self, data: DataProto):
+    def update_policy(self, data: DataProto, optimism: bool = False):
         # make sure we are in training mode
         self.actor_module.train()
 
@@ -236,7 +236,10 @@ class DataParallelPPOActor(BasePPOActor):
                 attention_mask = data['attention_mask']
                 response_mask = attention_mask[:, -response_length:]
                 old_log_prob = data['old_log_probs']
-                advantages = data['advantages']
+                if optimism:
+                    advantages = data['optimistic_advantages']
+                else:
+                    advantages = data['advantages']
 
                 clip_ratio = self.config.clip_ratio
                 entropy_coeff = self.config.entropy_coeff

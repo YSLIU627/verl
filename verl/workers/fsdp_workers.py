@@ -406,7 +406,7 @@ class ActorRolloutRefWorker(Worker):
         torch.cuda.empty_cache()
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def update_actor(self, data: DataProto):
+    def update_actor(self, data: DataProto, optimism: bool = False):
         data = data.to('cuda')
 
         assert self._is_actor
@@ -425,7 +425,7 @@ class ActorRolloutRefWorker(Worker):
             data = self.ulysses_sharding_manager.preprocess_data(data=data)
             # perform training
             with Timer(name='update_policy', logger=None) as timer:
-                metrics = self.actor.update_policy(data=data)
+                metrics = self.actor.update_policy(data=data, optimism= optimism)
             delta_time = timer.last
             global_num_tokens = data.meta_info['global_token_num']
             estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
@@ -805,7 +805,7 @@ class CriticWorker(Worker):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def update_critic(self, data: DataProto):
+    def update_critic(self, data: DataProto, optimism: bool = False):
         data = data.to('cuda')
         if self._is_offload_param:
             load_fsdp_param_and_grad(module=self.critic_module,
@@ -819,7 +819,7 @@ class CriticWorker(Worker):
             data = self.ulysses_sharding_manager.preprocess_data(data=data)
 
             with Timer(name='update_critic', logger=None) as timer:
-                metrics = self.critic.update_critic(data=data)
+                metrics = self.critic.update_critic(data=data, optimism = optimism)
             delta_time = timer.last
 
             global_num_tokens = data.meta_info['global_token_num']

@@ -140,7 +140,7 @@ class DataParallelPPOCritic(BasePPOCritic):
 
         return values
 
-    def update_critic(self, data: DataProto):
+    def update_critic(self, data: DataProto, optimism: bool = False):
         # make sure we are in training mode
         self.critic_module.train()
         metrics = {}
@@ -170,7 +170,10 @@ class DataParallelPPOCritic(BasePPOCritic):
                 attention_mask = data['attention_mask']
                 position_ids = data['position_ids']
                 values = data['values']
-                returns = data['returns']
+                if optimism:
+                    returns = data['optimistic_returns']
+                else:
+                    returns = data['returns']
                 response_length = responses.size(1)
 
                 eos_mask = attention_mask[:, -response_length - 1:-1]

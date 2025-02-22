@@ -156,7 +156,9 @@ algorithm:
     type: fixed
     kl_coef: 0.001
     kl_coef_correction: 0.01
-
+  optimism_coef: 0.
+  optimistic_critic: False
+  optimistic_actor: False
 trainer:
   total_epochs: 30
   total_training_steps: null

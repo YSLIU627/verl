@@ -115,6 +115,19 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
 
     return data, metrics
 
+def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, optimism_term: str = 'advantages'):
+    advantage = data.batch[optimism_term].clone()
+    n = advantage.shape[0] // rollout_n
+    m = advantage.shape[1]
+    grouped = advantage.view(n, rollout_n, m)
+    means = grouped.mean(dim=1, keepdim=True)  # 计算每个组的平均值
+    means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
+    sumexpadv = torch.exp((advantage - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
+    logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
+    logsumexpadv.repeat(rollout_n , dim=0)
+    data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch['advantages']
+    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy(),"optimistic_coef":coef, f"optimistic_{optimism_term}": data.batch[f'optimistic_{optimism_term}'].cpu().numpy()} 
+    return data, metrics
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1):
     # prepare response group
@@ -340,6 +353,7 @@ class RayPPOTrainer(object):
         self.reward_fn = reward_fn
         self.val_reward_fn = val_reward_fn
 
+        self.optimism = self.config.algorithm.optimism > 1e-6 and self.config.actor_rollout_ref.rollout.n > 1
         self.hybrid_engine = config.actor_rollout_ref.hybrid_engine
         assert self.hybrid_engine, 'Currently, only support hybrid engine'
 
@@ -928,11 +942,18 @@ class RayPPOTrainer(object):
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-
+                    if self.config.algorithm.optimistic_actor: 
+                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "advantages")
+                        metrics.update(compute_data_metrics(optimism_metrics))
+                    if self.config.algorithm.optimistic_critic:
+                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "returns")
+                        metrics.update(compute_data_metrics(optimism_metrics))
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
-                            critic_output = self.critic_wg.update_critic(batch)
+                            critic_output = self.critic_wg.update_critic(batch, optimism = self.optimistic_critic)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
 
@@ -940,7 +961,7 @@ class RayPPOTrainer(object):
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch)
+                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.optimistic_actor )
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 
