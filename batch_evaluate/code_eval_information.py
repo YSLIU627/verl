@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument("--push_to_hub_dir", default=False, type=str)
     parser.add_argument("--sample_end_idx", default=99999999, type=int)
     parser.add_argument("--save_filter", action='store_true')
+    parser.add_argument("--stat_mode", action='store_true')
     args = parser.parse_args()
         # add a row to each data item that represents a unique id
     def make_map_fn():
@@ -30,16 +31,20 @@ if __name__ == '__main__':
             responses = example["responses"]
             if isinstance(responses, List):
                 rewards = []
+                results = []
                 for response in responses:
                     try:
-                        rewards.append(compute_score(response, {'tests':test, 'entry_point': example['entry_point']}))
+                        feedback = compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
+                        rewards.append(feedback[0])
+                        results.append(feedback[1])
                     except:
                         rewards.append(compute_score(response, test))
                 example["rewards"] = rewards
                 example["mean_reward"] = np.mean(rewards)
+                example["results"] = results
             else:
                 try:
-                    example["rewards"] = compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
+                    example["rewards"], example["results"] = compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
                 except:
                     example["rewards"] = compute_score(response, test)
                 example["mean_reward"] = example["rewards"]
@@ -47,7 +52,10 @@ if __name__ == '__main__':
 
         return process_fn
     dataset = datasets.load_dataset(args.get_data_dir, trust_remote_code=True)['train']
-    train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
+    if not args.stat_mode:
+        train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
+    else:
+        train_dataset = dataset
     if args.push_to_hub_dir:
         train_dataset.push_to_hub(args.push_to_hub_dir)
     elif args.save_dir:

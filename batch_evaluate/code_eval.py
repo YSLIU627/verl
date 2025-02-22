@@ -1,6 +1,6 @@
 import os
 import datasets
-from typing import List
+from typing import List, Tuple
 from verl.utils.hdfs_io import copy, makedirs
 import argparse
 import numpy as np
@@ -18,8 +18,15 @@ if __name__ == '__main__':
     parser.add_argument("--push_to_hub_dir", default=False, type=str)
     parser.add_argument("--sample_end_idx", default=99999999, type=int)
     parser.add_argument("--save_filter", action='store_true')
+    parser.add_argument("--stat_mode", action='store_true')
     args = parser.parse_args()
         # add a row to each data item that represents a unique id
+    def _compute_score(response, test):
+        output = compute_score(response, test)
+        if isinstance(output, Tuple) or  isinstance(output, List):
+            return output[0]
+        else:
+            return output
     def make_map_fn():
 
         def process_fn(example, idx):
@@ -32,22 +39,26 @@ if __name__ == '__main__':
                 rewards = []
                 for response in responses:
                     try:
-                        rewards.append(compute_score(response, {'tests':test, 'entry_point': example['entry_point']}))
+                        rewards.append(_compute_score(response, {'tests':test, 'entry_point': example['entry_point']}))
                     except:
-                        rewards.append(compute_score(response, test))
+                        rewards.append(_compute_score(response, test))
                 example["rewards"] = rewards
                 example["mean_reward"] = np.mean(rewards)
+                
             else:
                 try:
-                    example["rewards"] = compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
+                    example["rewards"] = _compute_score(response, {'tests':test, 'entry_point': example['entry_point']})
                 except:
-                    example["rewards"] = compute_score(response, test)
+                    example["rewards"] = _compute_score(response, test)
                 example["mean_reward"] = example["rewards"]
             return example
 
         return process_fn
     dataset = datasets.load_dataset(args.get_data_dir, trust_remote_code=True)['train']
-    train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
+    if not args.stat_mode:
+        train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
+    else:
+        train_dataset = dataset
     if args.push_to_hub_dir:
         train_dataset.push_to_hub(args.push_to_hub_dir)
     elif args.save_dir:

@@ -155,6 +155,7 @@ algorithm:
   kl_ctrl:
     type: fixed
     kl_coef: 0.001
+    kl_coef_correction: 0.01
 
 trainer:
   total_epochs: 30

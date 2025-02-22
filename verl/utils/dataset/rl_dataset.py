@@ -128,14 +128,41 @@ class RLHFDataset(Dataset):
 
     def __len__(self):
         return len(self.dataframe)
+    def encode(self, items, prompt_key = 'prompt'):
+        if not isinstance(items, List):
+            items = [items]
+        for row_dict in items:
+            prompt_with_chat_template = self.tokenizer.apply_chat_template(row_dict[prompt_key], add_generation_prompt=True, tokenize=False)
 
+            input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
+                                                                            tokenizer=self.tokenizer,
+                                                                            max_length=self.max_prompt_length,
+                                                                            pad_token_id=self.tokenizer.pad_token_id,
+                                                                            left_pad=True,
+                                                                            truncation=self.truncation)
+
+            position_ids = compute_position_id_with_mask(attention_mask)
+
+            row_dict['input_ids'] = input_ids[0]
+            row_dict['attention_mask'] = attention_mask[0]
+            row_dict['position_ids'] = position_ids[0]
+
+            # encode prompts without chat template
+            if self.return_raw_chat:
+                row_dict['raw_prompt'] = row_dict[prompt_key].tolist()
+
+            # add index for each prompt
+            index = row_dict.get("extra_info", {}).get("index", 0)
+            row_dict["index"] = index
+        return items
     def __getitem__(self, item):
         """
         Note that we also return the raw_input_ids so that it can be combined with other chat template
         """
         row_dict = self.dataframe.iloc[item].to_dict()
 
-        chat = row_dict.pop(self.prompt_key)
+        #chat = row_dict.pop(self.prompt_key)
+        chat = row_dict[self.prompt_key]
 
         prompt_with_chat_template = self.tokenizer.apply_chat_template(chat, add_generation_prompt=True, tokenize=False)
 
@@ -159,7 +186,6 @@ class RLHFDataset(Dataset):
         # add index for each prompt
         index = row_dict.get("extra_info", {}).get("index", 0)
         row_dict["index"] = index
-
         return row_dict
 
     def __getstate__(self):

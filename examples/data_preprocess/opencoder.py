@@ -43,7 +43,7 @@ def main():
 
     if file_path.exists() and file_path.suffix == ".parquet":
         print("file existed")
-        return 
+        #return 
 
     # 'lighteval/MATH' is no longer available on huggingface.
     # Use mirror repo: DigitalLearningGmbH/MATH-lighteval

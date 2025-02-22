@@ -451,7 +451,7 @@ class ActorRolloutRefWorker(Worker):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def generate_sequences(self, prompts: DataProto):
+    def generate_sequences(self, prompts: DataProto, final_round: bool = True):
         prompts = prompts.to('cuda')
 
         assert self._is_rollout
@@ -481,8 +481,16 @@ class ActorRolloutRefWorker(Worker):
             output = self.rollout_sharding_manager.postprocess_data(output)
 
         output = output.to('cpu')
-
+        """
         if self._is_offload_param:
+            # NOTE(sgm): the grad is already in CPU, only offload param here
+            offload_fsdp_param_and_grad(module=self.actor_module_fsdp, offload_grad=self._is_offload_grad)
+        # clear kv cache
+        torch.cuda.empty_cache()
+        log_gpu_memory_usage('After recompute log prob', logger=logger)
+        return output
+        """
+        if self._is_offload_param and final_round:
             # NOTE(sgm): the grad is already in CPU, only offload param here
             offload_fsdp_param_and_grad(module=self.actor_module_fsdp, offload_grad=self._is_offload_grad)
         # clear kv cache
