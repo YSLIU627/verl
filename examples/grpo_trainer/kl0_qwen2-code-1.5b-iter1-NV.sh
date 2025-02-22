@@ -29,7 +29,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo_correct \
     algorithm.adv_estimator=grpo \
-    algorithm.kl_coef_correction=${KL_CORRECTION} \
+    algorithm.kl_ctrl.kl_coef_correction=${KL_CORRECTION} \
     reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/ \
     data.save_ppo_rollouts_path=rollouts/qwen2.5_code_0.5b_grpo/ \
@@ -37,7 +37,7 @@ python3 -m verl.trainer.main_ppo_correct \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
     data.train_batch_size=1024 \
     data.val_batch_size=1312 \
-    data.max_prompt_length=2048 \
+    data.max_prompt_length=3096 \
     data.max_response_length=2048 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \

@@ -899,10 +899,11 @@ class RayPPOTrainer(object):
                                 pprint(prompt_with_chat_template)
                                 debug_time = False
                             input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
-                                                                            tokenizer=self.tokenizer,
-                                                                            max_length=self.config.data.max_prompt_length,
-                                                                            pad_token_id=self.tokenizer.pad_token_id,
-                                                                            left_pad=True)
+                                tokenizer=self.tokenizer,
+                                max_length=self.config.data.max_prompt_length,
+                                pad_token_id=self.tokenizer.pad_token_id,
+                                left_pad=True,
+                                truncation='right')
                             new_prompt_length.append(len(input_ids))
                             position_ids = compute_position_id_with_mask(attention_mask)
                             list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
