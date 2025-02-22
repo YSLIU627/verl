@@ -125,7 +125,12 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, opt
     sumexpadv = torch.exp((advantage - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
     logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
     logsumexpadv.repeat(rollout_n , dim=0)
-    data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch[optimism_term]
+    if optimism_term == 'advantages':
+        data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch[optimism_term]
+    elif optimism_term == 'returns':
+        data.batch[f'optimism_{optimism_term}'] = - logsumexpadv * coef + data.batch[optimism_term]
+    else:
+        raise NotImplementedError
     metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy(),"optimistic_coef":coef, f"optimistic_{optimism_term}": data.batch[f'optimistic_{optimism_term}'].cpu().numpy()} 
     return data, metrics
 
@@ -353,7 +358,7 @@ class RayPPOTrainer(object):
         self.reward_fn = reward_fn
         self.val_reward_fn = val_reward_fn
 
-        self.optimism = self.config.algorithm.optimism > 1e-6 and self.config.actor_rollout_ref.rollout.n > 1
+        
         self.hybrid_engine = config.actor_rollout_ref.hybrid_engine
         assert self.hybrid_engine, 'Currently, only support hybrid engine'
 
@@ -943,12 +948,12 @@ class RayPPOTrainer(object):
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
                     if self.config.algorithm.optimistic_actor: 
-                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "advantages")
+                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism_coef > 1e-6
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "advantages")
                         metrics.update(compute_data_metrics(optimism_metrics))
                     if self.config.algorithm.optimistic_critic:
-                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "returns")
+                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism_coef > 1e-6
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "returns")
                         metrics.update(compute_data_metrics(optimism_metrics))
                     # update critic
                     if self.use_critic:
