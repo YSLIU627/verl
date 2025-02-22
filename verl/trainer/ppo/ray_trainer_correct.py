@@ -1013,7 +1013,7 @@ class RayPPOTrainer(object):
                         with _timer('save_checkpoint', timing_raw):
                             self._save_checkpoint()
                 def wrap_correction(dict_stat):
-                    return {"correction_" + key : value  for key, value in dict_stat}
+                    return {"correction_" + key : value  for key, value in dict_stat.items()}
                 # collect metrics
                 metrics.update(compute_data_metrics(batch=batch, use_critic=self.use_critic))
                 metrics.update(compute_timing_metrics(batch=batch, timing_raw=timing_raw))

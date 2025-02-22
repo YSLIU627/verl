@@ -1,5 +1,5 @@
 #set -x
-export CUDA_VISIBLE_DEVICES=2,3,4,5
+#export CUDA_VISIBLE_DEVICES=2,3,4,5
 
 ### task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=opencoder
@@ -55,7 +55,7 @@ python3 -m verl.trainer.main_ppo_correct \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
-    actor_rollout_ref.rollout.n=1 \
+    actor_rollout_ref.rollout.n=5 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=80 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
