@@ -122,13 +122,17 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: cor
     grouped = advantage.view(n, rollout_n, m)
     means = grouped.mean(dim=1, keepdim=True)  # 计算每个组的平均值
     means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
-    sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
+    
+    sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True).squeeze(1)
+    pprint("*"*30)
+    pprint(f"{advantage.shape}, {grouped.shape}, {means.shape}, {means_expanded.shape}, {sumexpadv.shape}")
+    pprint("*"*30)
     if optimism_term == 'advantages':
-        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).view(n * rollout_n, m)
+        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).repeat_interleave(rollout_n, dim = 0)
         logsumexpadv = logsumexpadv * coef + data.batch[optimism_term]
     elif optimism_term == 'returns':
         logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
-        logsumexpadv = logsumexpadv.view(n * rollout_n, m)
+        logsumexpadv = logsumexpadv.repeat_interleave(rollout_n, dim = 0)
         logsumexpadv = - logsumexpadv * coef
     else:
         raise NotImplementedError
@@ -949,15 +953,15 @@ class RayPPOTrainer(object):
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism > 1e-6: 
+                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
                         assert self.config.actor_rollout_ref.rollout.n > 1
                         batch
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "advantages")
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "advantages")
                         batch.meta_info.update({'optimistic_actor': True})
                         metrics.update(optimism_metrics)
-                    if self.config.algorithm.optimistic_critic and self.use_critic and self.config.algorithm.optimism > 1e-6:
+                    if self.config.algorithm.optimistic_critic and self.use_critic and self.config.algorithm.optimism_coef > 1e-6:
                         assert self.config.actor_rollout_ref.rollout.n > 1 
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "returns")
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
                         batch.meta_info.update({'optimistic_critic': True})
                         metrics.update(optimism_metrics)
                     # update critic
