@@ -878,6 +878,7 @@ class RayPPOTrainer(object):
                         
                         prompt_ids = batch.batch['prompts']
                         prompt_length = prompt_ids.shape[-1]
+                        prompts = [item for item in prompts for _ in range(self.config.actor_rollout_ref.rollout.n)]
                         response_ids = batch.batch['responses']
                         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
                         
