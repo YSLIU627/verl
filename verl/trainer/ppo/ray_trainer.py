@@ -949,20 +949,21 @@ class RayPPOTrainer(object):
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
+                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism > 1e-6: 
                         assert self.config.actor_rollout_ref.rollout.n > 1
-                        new_batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "advantages")
+                        batch
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "advantages")
+                        batch.meta_info.update({'optimistic_actor': True})
                         metrics.update(optimism_metrics)
-                        batch = batch.union(new_batch)
-                    if self.config.algorithm.optimistic_critic and self.config.algorithm.optimism_coef > 1e-6:
-                        assert self.config.actor_rollout_ref.rollout.n > 1
-                        new_batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
+                    if self.config.algorithm.optimistic_critic and self.use_critic and self.config.algorithm.optimism > 1e-6:
+                        assert self.config.actor_rollout_ref.rollout.n > 1 
+                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "returns")
+                        batch.meta_info.update({'optimistic_critic': True})
                         metrics.update(optimism_metrics)
-                        batch = batch.union(new_batch)
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
-                            critic_output = self.critic_wg.update_critic(batch, optimism = self.config.algorithm.optimistic_critic and self.config.algorithm.optimism_coef > 1e-6)
+                            critic_output = self.critic_wg.update_critic(batch)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
 
@@ -971,7 +972,7 @@ class RayPPOTrainer(object):
                         # update actor
                         print(batch.batch)
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.config.algorithm.optimistic_actor  and self.config.algorithm.optimism_coef > 1e-6)
+                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.optimistic_actor )
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 

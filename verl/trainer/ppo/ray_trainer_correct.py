@@ -858,6 +858,7 @@ class RayPPOTrainer(object):
                 with _timer('step', timing_raw):
                     # generate a batch
                     with _timer('gen', timing_raw):
+                        gen_batch.meta_info.update({'final_round': False})
                         gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch)
 
 
@@ -872,7 +873,7 @@ class RayPPOTrainer(object):
                     #self._balance_batch(batch, metrics=metrics)
                     ## Self-correction
                     list_batch = []
-                    new_prompt_length = []
+                    
                     with _timer('correction', timing_raw):
                         
                         prompt_ids = batch.batch['prompts']
@@ -904,15 +905,27 @@ class RayPPOTrainer(object):
                                 pad_token_id=self.tokenizer.pad_token_id,
                                 left_pad=True,
                                 truncation='right')
-                            new_prompt_length.append(len(input_ids))
+                            
                             position_ids = compute_position_id_with_mask(attention_mask)
                             list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
-                            #batch = batch.union(DataProto.from_single_dict({"sequences_str": sequences_str})) 
-                        #gen_batch_correction = pre_batch.pop(batch_keys=['input_ids', 'attention_mask', 'position_ids'])
-                        gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(DataProto.concat(list_batch))
+                        prompt_batch = DataProto.concat(list_batch)
+                        prompt_batch.meta_info.update({'single_rollout': True,'final_round': True})
+                        gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(prompt_batch)
                         batch_correction = gen_batch_output_correction.union(pre_batch)
-                        
-                        batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": batch_correction.batch["attention_mask"] * batch.batch["attention_mask"], "position_ids":batch_correction.batch["position_ids"], "responses": batch_correction.batch["responses"]})
+                        assert batch_correction.batch["attention_mask"].shape == batch.batch["attention_mask"].shape
+                        # we mask the additional part in the correction prompt
+                        # (Q1 , ....... Pad,A1, ...Pad) 
+                        # (1,1,0,0,...   0,1,1,0,0,0,0)
+                        # (Q1 ,A1,Q2, ..Pad,A2 , ..Pad)
+                        # (1,1,1,1,1,1,0,  ,1,1,0,0,,0)
+                        # we want to get 
+                        # (Q1 ,A1,Q2, ..Pad,A2, ...Pad)
+                        # (1,1,0,0,...   0,1,1,0,0,0,0)
+                        attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
+                        attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
+                        assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
+
+                        batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": attention_mask_masked, "position_ids":batch_correction.batch["position_ids"], "responses": batch_correction.batch["responses"]})
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
                     batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
@@ -923,7 +936,7 @@ class RayPPOTrainer(object):
                         with _timer('ref', timing_raw):
                             ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
                             batch = batch.union(ref_log_prob)
-                            ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked)
+                            ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked.union(pre_batch))
                             batch_correction = batch_correction.union(ref_log_prob_correction)
                     del batch_correction_masked
                     

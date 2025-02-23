@@ -34,7 +34,7 @@ python3 -m verl.trainer.main_ppo_correct \
     data.train_files=$HOME/data/$DATA_PATH_SUFF/train.parquet \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
     data.train_batch_size=1024 \
-    data.val_batch_size=1312 \
+    data.val_batch_size=1024 \
     data.max_prompt_length=3096 \
     data.max_response_length=2048 \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-Coder-0.5B-Instruct \

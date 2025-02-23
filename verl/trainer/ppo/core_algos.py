@@ -277,7 +277,7 @@ def compute_entropy_loss(logits, eos_mask):
     return entropy_loss
 
 
-def compute_value_loss(vpreds, returns, values, eos_mask, cliprange_value, optimism_loss =False):
+def compute_value_loss(vpreds, returns, values, eos_mask, cliprange_value):
     """Compute the value loss. Copied from https://github.com/huggingface/trl/blob/main/trl/trainer/ppo_trainer.py#L1151
 
     Args:
@@ -300,8 +300,6 @@ def compute_value_loss(vpreds, returns, values, eos_mask, cliprange_value, optim
     vf_losses2 = (vpredclipped - returns)**2
     vf_loss = 0.5 * verl_F.masked_mean(torch.max(vf_losses1, vf_losses2), eos_mask)
     vf_clipfrac = verl_F.masked_mean(torch.gt(vf_losses2, vf_losses1).float(), eos_mask)
-    if optimism_loss:
-        vf_loss += verl_F.masked_mean(optimism_loss, eos_mask)
     return vf_loss, vf_clipfrac
 
 
