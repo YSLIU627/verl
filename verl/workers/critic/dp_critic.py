@@ -145,7 +145,10 @@ class DataParallelPPOCritic(BasePPOCritic):
         self.critic_module.train()
         metrics = {}
         optimism = data.meta_info.get("optimistic_critic", False)
-        select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
+        if optimism:
+            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns', 'optimistic_returns']
+        else:
+            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
         batch = data.select(batch_keys=select_keys).batch
         # Split to make minibatch iterator for updating the actor
         # See PPO paper for details. https://arxiv.org/abs/1707.06347
