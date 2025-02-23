@@ -122,13 +122,15 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, opt
     grouped = advantage.view(n, rollout_n, m)
     means = grouped.mean(dim=1, keepdim=True)  # 计算每个组的平均值
     means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
-    sumexpadv = torch.exp((advantage - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
-    logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
-    logsumexpadv.repeat(rollout_n , dim=0)
+    sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
     if optimism_term == 'advantages':
+        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv))
+        logsumexpadv.repeat(rollout_n , dim=0)
         data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch[optimism_term]
     elif optimism_term == 'returns':
-        data.batch[f'optimism_{optimism_term}'] = - logsumexpadv * coef + data.batch[optimism_term]
+        logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
+        logsumexpadv.repeat(rollout_n , dim=0)
+        data.batch[f'optimism_{optimism_term}'] = - logsumexpadv * coef
     else:
         raise NotImplementedError
     metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy(),"optimistic_coef":coef, f"optimistic_{optimism_term}": data.batch[f'optimistic_{optimism_term}'].cpu().numpy()} 
@@ -947,18 +949,18 @@ class RayPPOTrainer(object):
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-                    if self.config.algorithm.optimistic_actor: 
-                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism_coef > 1e-6
+                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
+                        assert self.config.actor_rollout_ref.rollout.n > 1
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "advantages")
                         metrics.update(compute_data_metrics(optimism_metrics))
-                    if self.config.algorithm.optimistic_critic:
-                        assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism_coef > 1e-6
+                    if self.config.algorithm.optimistic_critic and self.config.algorithm.optimism_coef > 1e-6:
+                        assert self.config.actor_rollout_ref.rollout.n > 1
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "returns")
                         metrics.update(compute_data_metrics(optimism_metrics))
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
-                            critic_output = self.critic_wg.update_critic(batch, optimism = self.optimistic_critic)
+                            critic_output = self.critic_wg.update_critic(batch, optimism = self.config.algorithm.optimistic_critic)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
 
@@ -966,7 +968,7 @@ class RayPPOTrainer(object):
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.optimistic_actor )
+                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.config.algorithm.optimistic_actor )
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 

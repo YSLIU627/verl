@@ -170,10 +170,8 @@ class DataParallelPPOCritic(BasePPOCritic):
                 attention_mask = data['attention_mask']
                 position_ids = data['position_ids']
                 values = data['values']
-                if optimism:
-                    returns = data['optimistic_returns']
-                else:
-                    returns = data['returns']
+ 
+                returns = data['returns']
                 response_length = responses.size(1)
 
                 eos_mask = attention_mask[:, -response_length - 1:-1]
@@ -181,12 +179,16 @@ class DataParallelPPOCritic(BasePPOCritic):
                 vpreds = self._forward_micro_batch(data)
 
                 # assert not torch.any(torch.isnan(vpreds)).item()
-
+                if optimism:
+                    optimism = data['optimistic_returns']
+                else:
+                    optimism = False
                 vf_loss, vf_clipfrac = core_algos.compute_value_loss(vpreds=vpreds,
                                                                      values=values,
                                                                      returns=returns,
                                                                      eos_mask=eos_mask,
-                                                                     cliprange_value=self.config.cliprange_value)
+                                                                     cliprange_value=self.config.cliprange_value,
+                                                                     optimism = optimism)
                 if self.config.use_dynamic_bsz:
                     # relative to the dynamic bsz
                     loss = vf_loss * (len(data) / self.config.ppo_mini_batch_size)

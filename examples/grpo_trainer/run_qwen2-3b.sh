@@ -31,7 +31,7 @@ python3 -m verl.trainer.main_ppo \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
     data.custom_temp_dir=$HOME/tmp/ray/ \
     data.train_batch_size=1024 \
-    data.val_batch_size=1312 \
+    data.val_batch_size=1024 \
     data.max_prompt_length=1024 \
     data.max_response_length=2048 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
