@@ -919,7 +919,7 @@ class RayPPOTrainer(object):
                         # (Q1 ,A1,Q2, ..Pad,A2, ...Pad)
                         # (1,1,0,0,...   0,1,1,0,0,0,0)
                         attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
-                        attention_mask_masked = torch.cat(attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:], dim = 1)
+                        attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
                         assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
 
                         batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": attention_mask_masked, "position_ids":batch_correction.batch["position_ids"], "responses": batch_correction.batch["responses"]})
