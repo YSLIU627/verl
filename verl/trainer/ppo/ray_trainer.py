@@ -124,9 +124,9 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: cor
     means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
     
     sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True).squeeze(1)
-    pprint("*"*30)
-    pprint(f"{advantage.shape}, {grouped.shape}, {means.shape}, {means_expanded.shape}, {sumexpadv.shape}")
-    pprint("*"*30)
+    #pprint("*"*30)
+    #pprint(f"{advantage.shape}, {grouped.shape}, {means.shape}, {means_expanded.shape}, {sumexpadv.shape}")
+    #pprint("*"*30)
     if optimism_term == 'advantages':
         logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).repeat_interleave(rollout_n, dim = 0)
         logsumexpadv = logsumexpadv * coef + data.batch[optimism_term]
@@ -974,7 +974,7 @@ class RayPPOTrainer(object):
                     # implement critic warmup
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
-                        print(batch.batch)
+                        #print(batch.batch)
                         with _timer('update_actor', timing_raw):
                             actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
