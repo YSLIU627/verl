@@ -451,7 +451,7 @@ class ActorRolloutRefWorker(Worker):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def generate_sequences(self, prompts: DataProto, final_round: bool = True):
+    def generate_sequences(self, prompts: DataProto, final_round: bool = True, single_rollout: bool = False):
         prompts = prompts.to('cuda')
 
         assert self._is_rollout
@@ -474,7 +474,7 @@ class ActorRolloutRefWorker(Worker):
             log_gpu_memory_usage('After entering rollout sharding manager', logger=logger)
 
             prompts = self.rollout_sharding_manager.preprocess_data(prompts)
-            output = self.rollout.generate_sequences(prompts=prompts)
+            output = self.rollout.generate_sequences(prompts=prompts,single_rollout = single_rollout)
 
             log_gpu_memory_usage('After rollout generation', logger=logger)
 
