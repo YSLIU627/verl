@@ -124,11 +124,11 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: cor
     means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
     sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
     if optimism_term == 'advantages':
-        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).repeat_interleave(repeats=rollout_n, dim=0)
+        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).view(n * rollout_n, m)
         logsumexpadv = logsumexpadv * coef + data.batch[optimism_term]
     elif optimism_term == 'returns':
         logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
-        logsumexpadv.repeat_interleave(repeats=rollout_n, dim=0)
+        logsumexpadv = logsumexpadv.view(n * rollout_n, m)
         logsumexpadv = - logsumexpadv * coef
     else:
         raise NotImplementedError
