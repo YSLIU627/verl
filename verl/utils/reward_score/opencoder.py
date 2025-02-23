@@ -46,7 +46,7 @@ def format_prompt(problem: str,
         return prompt
 
 
-def compute_score(solution_str: str, ground_truth: Union[str,dict]) -> float:
+def compute_score(solution_str: str, ground_truth: Union[str,dict]):
     #retval = 0.
     try:
         

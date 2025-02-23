@@ -115,7 +115,7 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
 
     return data, metrics
 
-def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, optimism_term: str = 'advantages'):
+def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'advantages'):
     advantage = data.batch[optimism_term].clone()
     n = advantage.shape[0] // rollout_n
     m = advantage.shape[1]
@@ -124,16 +124,16 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl, opt
     means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
     sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True)
     if optimism_term == 'advantages':
-        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv))
-        logsumexpadv.repeat(rollout_n , dim=0)
-        data.batch[f'optimism_{optimism_term}'] = logsumexpadv * coef + data.batch[optimism_term]
+        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).repeat_interleave(repeats=rollout_n, dim=0)
+        logsumexpadv = logsumexpadv * coef + data.batch[optimism_term]
     elif optimism_term == 'returns':
         logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
-        logsumexpadv.repeat(rollout_n , dim=0)
-        data.batch[f'optimism_{optimism_term}'] = - logsumexpadv * coef
+        logsumexpadv.repeat_interleave(repeats=rollout_n, dim=0)
+        logsumexpadv = - logsumexpadv * coef
     else:
         raise NotImplementedError
-    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy(),"optimistic_coef":coef, f"optimistic_{optimism_term}": data.batch[f'optimistic_{optimism_term}'].cpu().numpy()} 
+    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy().mean(),"optimistic_coef":coef, f"optimistic_{optimism_term}": logsumexpadv.cpu().numpy().mean()} 
+    data = DataProto.from_dict({f'optimistic_{optimism_term}': logsumexpadv})
     return data, metrics
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1):
@@ -951,24 +951,27 @@ class RayPPOTrainer(object):
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
                     if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
                         assert self.config.actor_rollout_ref.rollout.n > 1
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "advantages")
-                        metrics.update(compute_data_metrics(optimism_metrics))
+                        new_batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "advantages")
+                        metrics.update(optimism_metrics)
+                        batch = batch.union(new_batch)
                     if self.config.algorithm.optimistic_critic and self.config.algorithm.optimism_coef > 1e-6:
                         assert self.config.actor_rollout_ref.rollout.n > 1
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, "returns")
-                        metrics.update(compute_data_metrics(optimism_metrics))
+                        new_batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
+                        metrics.update(optimism_metrics)
+                        batch = batch.union(new_batch)
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
-                            critic_output = self.critic_wg.update_critic(batch, optimism = self.config.algorithm.optimistic_critic)
+                            critic_output = self.critic_wg.update_critic(batch, optimism = self.config.algorithm.optimistic_critic and self.config.algorithm.optimism_coef > 1e-6)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
 
                     # implement critic warmup
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
+                        print(batch.batch)
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.config.algorithm.optimistic_actor )
+                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.config.algorithm.optimistic_actor  and self.config.algorithm.optimism_coef > 1e-6)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 

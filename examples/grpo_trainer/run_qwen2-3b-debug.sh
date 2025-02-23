@@ -6,7 +6,7 @@ TASK_NAME=math_dataset
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 #START_IDX=0
 #END_IDX=2000
-optimism_coeff=0
+optimism_coeff=0.1
 #REMOTE_DATA_PATH=ZHLiu627/dataset_qwen2.5_code_1.5b_grpo_iter0_full_data_miao_0212_2_global_step_70filtered_v1
 SAVE_LOCAL_DIR_PREFIX='checkpoints/'
 PROJECT_NAME=Qwen2.5-3B-Instruct-GRPO
