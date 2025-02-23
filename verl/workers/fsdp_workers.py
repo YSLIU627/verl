@@ -14,7 +14,7 @@
 """
 The main entry point to run the PPO algorithm
 """
-
+from typing import List
 import logging
 import os
 import warnings
@@ -407,6 +407,9 @@ class ActorRolloutRefWorker(Worker):
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def update_actor(self, data: DataProto, optimism: bool = False):
+        if isinstance(data, List):
+            data = data[0]
+        data = data.to('cuda')
         data = data.to('cuda')
 
         assert self._is_actor
@@ -806,6 +809,8 @@ class CriticWorker(Worker):
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def update_critic(self, data: DataProto, optimism: bool = False):
+        if isinstance(data, List):
+            data = data[0]
         data = data.to('cuda')
         if self._is_offload_param:
             load_fsdp_param_and_grad(module=self.critic_module,
