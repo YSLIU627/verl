@@ -851,7 +851,7 @@ class RayPPOTrainer(object):
                 timing_raw = {}
                 prompts = batch_dict.pop(self.config.data.prompt_key)
                 pre_batch: DataProto = DataProto.from_single_dict(batch_dict)
-
+                
                 # pop those keys for generation
                 gen_batch = pre_batch.pop(batch_keys=['input_ids', 'attention_mask', 'position_ids'])
 
@@ -873,7 +873,7 @@ class RayPPOTrainer(object):
                     #self._balance_batch(batch, metrics=metrics)
                     ## Self-correction
                     list_batch = []
-                    
+                    list_batch_masked = []
                     with _timer('correction', timing_raw):
                         
                         prompt_ids = batch.batch['prompts']
@@ -896,6 +896,9 @@ class RayPPOTrainer(object):
 
                             new_prompt = [prompt, {"role":"assistant", "content": response}, {"role":"user","content":new_prompt}]
                             prompt_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
+
+                            new_prompt_masked = [prompt]
+                            prompt_masked_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
                             if debug_time:
                                 pprint("*"*10)
                                 pprint(prompt_with_chat_template)
@@ -906,14 +909,21 @@ class RayPPOTrainer(object):
                                 pad_token_id=self.tokenizer.pad_token_id,
                                 left_pad=True,
                                 truncation='right')
-                            
+                            input_ids_masked, attention_mask_masked = verl_F.tokenize_and_postprocess_data(prompt=prompt_masked_with_chat_template,
+                                tokenizer=self.tokenizer,
+                                max_length=self.config.data.max_prompt_length,
+                                pad_token_id=self.tokenizer.pad_token_id,
+                                left_pad=True,
+                                truncation='right')
                             position_ids = compute_position_id_with_mask(attention_mask)
                             list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
+                            list_batch_masked.append(DataProto.from_dict({"input_ids":input_ids_masked, "attention_mask":attention_mask_masked}))
                         prompt_batch = DataProto.concat(list_batch)
+                        prompt_batch_masked = DataProto.concat(list_batch_masked)
                         prompt_batch.meta_info.update({'single_rollout': True,'final_round': True})
                         gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(prompt_batch)
                         batch_correction = gen_batch_output_correction.union(pre_batch)
-                        assert batch_correction.batch["attention_mask"].shape == batch.batch["attention_mask"].shape
+                        #assert batch_correction.batch["attention_mask"].shape == batch.batch["attention_mask"].shape
                         # we mask the additional part in the correction prompt
                         # (Q1 , ....... Pad,A1, ...Pad) 
                         # (1,1,0,0,...   0,1,1,0,0,0,0)
@@ -922,11 +932,14 @@ class RayPPOTrainer(object):
                         # we want to get 
                         # (Q1 ,A1,Q2, ..Pad,A2, ...Pad)
                         # (1,1,0,0,...   0,1,1,0,0,0,0)
-                        attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
-                        attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
-                        assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
-
-                        batch_correction_masked = DataProto.from_dict({"input_ids":batch_correction.batch["input_ids"], "attention_mask": attention_mask_masked, "position_ids":batch_correction.batch["position_ids"], "responses": batch_correction.batch["responses"]})
+                        #attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
+                        #attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
+                        #assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
+                        prompt_length = batch_correction.batch["prompt"].shape[-1]
+                        batch_correction_masked.batch["position_ids"] = batch_correction.batch["position_ids"]
+                        batch_correction_masked.batch["input_ids"] = torch.cat((batch_correction_masked.batch["input_ids"], batch_correction.batch["input_ids"][:,prompt_length:]), dim = -1)
+                        batch_correction_masked.batch["attention_mask"] = torch.cat((batch_correction_masked.batch["attention_mask"], batch_correction.batch["attention_mask"][:,prompt_length:]), dim = -1)
+                       
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
                     batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
