@@ -406,10 +406,7 @@ class ActorRolloutRefWorker(Worker):
         torch.cuda.empty_cache()
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def update_actor(self, data: DataProto, optimism: bool = False):
-        if isinstance(data, List):
-            data = data[0]
-        data = data.to('cuda')
+    def update_actor(self, data: DataProto):
         data = data.to('cuda')
 
         assert self._is_actor
@@ -428,7 +425,7 @@ class ActorRolloutRefWorker(Worker):
             data = self.ulysses_sharding_manager.preprocess_data(data=data)
             # perform training
             with Timer(name='update_policy', logger=None) as timer:
-                metrics = self.actor.update_policy(data=data, optimism= optimism)
+                metrics = self.actor.update_policy(data=data)
             delta_time = timer.last
             global_num_tokens = data.meta_info['global_token_num']
             estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
@@ -454,7 +451,7 @@ class ActorRolloutRefWorker(Worker):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def generate_sequences(self, prompts: DataProto, final_round: bool = True, single_rollout: bool = False):
+    def generate_sequences(self, prompts: DataProto):
         prompts = prompts.to('cuda')
 
         assert self._is_rollout
@@ -477,7 +474,7 @@ class ActorRolloutRefWorker(Worker):
             log_gpu_memory_usage('After entering rollout sharding manager', logger=logger)
 
             prompts = self.rollout_sharding_manager.preprocess_data(prompts)
-            output = self.rollout.generate_sequences(prompts=prompts,single_rollout = single_rollout)
+            output = self.rollout.generate_sequences(prompts=prompts)
 
             log_gpu_memory_usage('After rollout generation', logger=logger)
 
@@ -493,7 +490,7 @@ class ActorRolloutRefWorker(Worker):
         log_gpu_memory_usage('After recompute log prob', logger=logger)
         return output
         """
-        if self._is_offload_param and final_round:
+        if self._is_offload_param and prompts.meta_info.get("final_round", True):
             # NOTE(sgm): the grad is already in CPU, only offload param here
             offload_fsdp_param_and_grad(module=self.actor_module_fsdp, offload_grad=self._is_offload_grad)
         # clear kv cache
@@ -808,9 +805,7 @@ class CriticWorker(Worker):
         return output
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def update_critic(self, data: DataProto, optimism: bool = False):
-        if isinstance(data, List):
-            data = data[0]
+    def update_critic(self, data: DataProto):
         data = data.to('cuda')
         if self._is_offload_param:
             load_fsdp_param_and_grad(module=self.critic_module,
@@ -824,7 +819,7 @@ class CriticWorker(Worker):
             data = self.ulysses_sharding_manager.preprocess_data(data=data)
 
             with Timer(name='update_critic', logger=None) as timer:
-                metrics = self.critic.update_critic(data=data, optimism = optimism)
+                metrics = self.critic.update_critic(data=data)
             delta_time = timer.last
 
             global_num_tokens = data.meta_info['global_token_num']

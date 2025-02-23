@@ -140,7 +140,7 @@ class DataParallelPPOCritic(BasePPOCritic):
 
         return values
 
-    def update_critic(self, data: DataProto, optimism: bool = False):
+    def update_critic(self, data: DataProto):
         # make sure we are in training mode
         self.critic_module.train()
         metrics = {}
@@ -170,10 +170,8 @@ class DataParallelPPOCritic(BasePPOCritic):
                 attention_mask = data['attention_mask']
                 position_ids = data['position_ids']
                 values = data['values']
-                if optimism:
-                    returns = data['optimistic_returns']
-                else:
-                    returns = data['returns']
+                returns = data['returns']
+                
                 response_length = responses.size(1)
 
                 eos_mask = attention_mask[:, -response_length - 1:-1]
@@ -186,7 +184,9 @@ class DataParallelPPOCritic(BasePPOCritic):
                                                                      values=values,
                                                                      returns=returns,
                                                                      eos_mask=eos_mask,
-                                                                     cliprange_value=self.config.cliprange_value)
+                                                                     cliprange_value=self.config.cliprange_value,)
+                if data.meta_info.get("optimistic_critic", False):
+                    vf_loss += data['optimistic_returns']
                 if self.config.use_dynamic_bsz:
                     # relative to the dynamic bsz
                     loss = vf_loss * (len(data) / self.config.ppo_mini_batch_size)

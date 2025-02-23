@@ -858,7 +858,8 @@ class RayPPOTrainer(object):
                 with _timer('step', timing_raw):
                     # generate a batch
                     with _timer('gen', timing_raw):
-                        gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch, final_round = False)
+                        gen_batch.meta_info.update({'final_round': False})
+                        gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch)
 
 
                     pre_batch.non_tensor_batch['uid'] = np.array([str(uuid.uuid4()) for _ in range(len(pre_batch.batch))],
@@ -907,7 +908,9 @@ class RayPPOTrainer(object):
                             
                             position_ids = compute_position_id_with_mask(attention_mask)
                             list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
-                        gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(DataProto.concat(list_batch),final_round = True, single_rollout = True)
+                        prompt_batch = DataProto.concat(list_batch)
+                        prompt_batch.meta_info.update({'single_rollout': True,'final_round': True})
+                        gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(prompt_batch)
                         batch_correction = gen_batch_output_correction.union(pre_batch)
                         assert batch_correction.batch["attention_mask"].shape == batch.batch["attention_mask"].shape
                         # we mask the additional part in the correction prompt

@@ -944,16 +944,19 @@ class RayPPOTrainer(object):
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
                     if self.config.algorithm.optimistic_actor: 
                         assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
+                        batch
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "advantages")
-                        metrics.update(compute_data_metrics(optimism_metrics))
-                    if self.config.algorithm.optimistic_critic:
+                        batch.meta_info.update({'optimistic_actor': True})
+                        metrics.update(optimism_metrics)
+                    if self.config.algorithm.optimistic_critic and self.use_critic:
                         assert self.config.actor_rollout_ref.rollout.n > 1 and self.config.algorithm.optimism > 1e-6
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism, "returns")
-                        metrics.update(compute_data_metrics(optimism_metrics))
+                        batch.meta_info.update({'optimistic_critic': True})
+                        metrics.update(optimism_metrics)
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
-                            critic_output = self.critic_wg.update_critic(batch, optimism = self.optimistic_critic)
+                            critic_output = self.critic_wg.update_critic(batch)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
 
@@ -961,7 +964,7 @@ class RayPPOTrainer(object):
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.optimistic_actor )
+                            actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 
