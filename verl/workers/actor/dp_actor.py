@@ -205,7 +205,7 @@ class DataParallelPPOActor(BasePPOActor):
         self.actor_module.train()
 
         temperature = data.meta_info['temperature']  # temperature must be in the data.meta_info to avoid slient error
-
+        optimism = data.meta_info.get("optimistic_actor", False)
         select_keys = ['responses', 'input_ids', 'attention_mask', 'position_ids', 'old_log_probs', 'advantages']
         if self.config.use_kl_loss:
             select_keys.append('ref_log_prob')
@@ -236,7 +236,7 @@ class DataParallelPPOActor(BasePPOActor):
                 attention_mask = data['attention_mask']
                 response_mask = attention_mask[:, -response_length:]
                 old_log_prob = data['old_log_probs']
-                if data.meta_info.get("optimistic_actor", False):
+                if optimism:
                     advantages = data['optimistic_advantages']
                 else:
                     advantages = data['advantages']

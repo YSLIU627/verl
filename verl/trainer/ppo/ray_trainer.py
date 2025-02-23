@@ -137,7 +137,7 @@ def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: cor
     else:
         raise NotImplementedError
     metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy().mean(),"optimistic_coef":coef, f"optimistic_{optimism_term}": logsumexpadv.cpu().numpy().mean()} 
-    data = DataProto.from_dict({f'optimistic_{optimism_term}': logsumexpadv})
+    data = data.union(DataProto.from_dict({f'optimistic_{optimism_term}': logsumexpadv}))
     return data, metrics
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1):
@@ -955,9 +955,9 @@ class RayPPOTrainer(object):
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
                     if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
                         assert self.config.actor_rollout_ref.rollout.n > 1
-                        batch
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "advantages")
                         batch.meta_info.update({'optimistic_actor': True})
+                        assert "optimistic_advantages" in batch.batch.keys()
                         metrics.update(optimism_metrics)
                     if self.config.algorithm.optimistic_critic and self.use_critic and self.config.algorithm.optimism_coef > 1e-6:
                         assert self.config.actor_rollout_ref.rollout.n > 1 
@@ -976,7 +976,7 @@ class RayPPOTrainer(object):
                         # update actor
                         print(batch.batch)
                         with _timer('update_actor', timing_raw):
-                            actor_output = self.actor_rollout_wg.update_actor(batch, optimism = self.optimistic_actor )
+                            actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
 

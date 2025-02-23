@@ -144,7 +144,7 @@ class DataParallelPPOCritic(BasePPOCritic):
         # make sure we are in training mode
         self.critic_module.train()
         metrics = {}
-
+        optimism = data.meta_info.get("optimistic_critic", False)
         select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
         batch = data.select(batch_keys=select_keys).batch
         # Split to make minibatch iterator for updating the actor
@@ -188,7 +188,7 @@ class DataParallelPPOCritic(BasePPOCritic):
                                                                      returns=returns,
                                                                      eos_mask=eos_mask,
                                                                      cliprange_value=self.config.cliprange_value)
-                if data.meta_info.get("optimistic_critic", False):
+                if optimism:
                     vf_loss += data['optimistic_returns']
                 if self.config.use_dynamic_bsz:
                     # relative to the dynamic bsz
