@@ -105,8 +105,38 @@ def compute_gae_advantage_return(token_level_rewards: torch.Tensor, values: torc
         returns = advantages + values
         advantages = verl_F.masked_whiten(advantages, eos_mask)
     return advantages, returns
+def compute_optimism_loss(
+        token_level_rewards: torch.Tensor,
+        index: torch.Tensor, 
+        kl: float, 
+        sqrt: bool = True
+):
+    id2score = defaultdict(list)
+    id2mean = {}
+    id2index = defaultdict(list)
+    id2logsumexp = {}
 
-
+    with torch.no_grad():
+        bsz = token_level_rewards.shape[0]
+        for i in range(bsz):
+            id2score[index[i]].append(token_level_rewards[i])
+            id2index[index[i]].append(i)
+        for idx in id2score:
+            if len(id2score[idx]) == 1:
+                return 0. * token_level_rewards
+                #id2std[idx] = torch.tensor(1.0)
+            elif len(id2score[idx]) > 1:
+                id2mean[idx] = torch.mean(torch.tensor(id2score[idx]), dim = 0)
+                sumexp = torch.mean(torch.tensor([torch.exp(( _ - id2mean[idx])/ kl) for _ in id2score[idx]]), dim = 0)
+                    
+                for index in id2index:
+                    token_level_rewards[i] = kl * torch.log(sumexp)
+                #id2logsumexp[idx] = torch.mean(torch.tensor(id2score[idx] - id2mean[idx]), dim = 0)
+            else:
+                raise ValueError(f"no score in prompt index: {idx}")
+        if sqrt:
+            token_level_rewards = torch.sqrt(token_level_rewards)
+        return token_level_rewards
 # NOTE(sgm): this implementation only consider outcome supervision, where the reward is a scalar.
 def compute_grpo_outcome_advantage(token_level_rewards: torch.Tensor,
                                    eos_mask: torch.Tensor,

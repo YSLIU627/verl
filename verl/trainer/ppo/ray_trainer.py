@@ -116,28 +116,15 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
     return data, metrics
 
 def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'advantages'):
-    advantage = data.batch[optimism_term].clone()
-    n = advantage.shape[0] // rollout_n
-    m = advantage.shape[1]
-    grouped = advantage.view(n, rollout_n, m)
-    means = grouped.mean(dim=1, keepdim=True)  # 计算每个组的平均值
-    means_expanded = means.expand_as(grouped)  # 扩展平均值到与组相同的形状
-    
-    sumexpadv = torch.exp((grouped - means_expanded)/kl_ctrl.value).mean(dim=1, keepdim=True).squeeze(1)
-    #pprint("*"*30)
-    #pprint(f"{advantage.shape}, {grouped.shape}, {means.shape}, {means_expanded.shape}, {sumexpadv.shape}")
-    #pprint("*"*30)
+    token_level_rewards = data.batch[optimism_term].clone()
     if optimism_term == 'advantages':
-        logsumexpadv = torch.sqrt(kl_ctrl.value * torch.log(sumexpadv)).repeat_interleave(rollout_n, dim = 0)
-        logsumexpadv = logsumexpadv * coef + data.batch[optimism_term]
+        token_level_rewards = coef * core_algos.compute_optimism_loss(token_level_rewards,data.non_tensor_batch['uid'],kl_ctrl.value, True)
     elif optimism_term == 'returns':
-        logsumexpadv = kl_ctrl.value * torch.log(sumexpadv)
-        logsumexpadv = logsumexpadv.repeat_interleave(rollout_n, dim = 0)
-        logsumexpadv = - logsumexpadv * coef
+        token_level_rewards = coef * core_algos.compute_optimism_loss(token_level_rewards,data.non_tensor_batch['uid'],kl_ctrl.value, False)
     else:
         raise NotImplementedError
-    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy().mean(),"optimistic_coef":coef, f"optimistic_{optimism_term}": logsumexpadv.cpu().numpy().mean()} 
-    data = data.union(DataProto.from_dict({f'optimistic_{optimism_term}': logsumexpadv}))
+    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy().mean(),"optimistic_coef":coef, f"optimistic_{optimism_term}": token_level_rewards.cpu().numpy().mean()} 
+    data = data.union(DataProto.from_dict({f'optimistic_{optimism_term}': token_level_rewards}))
     return data, metrics
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1):
@@ -900,10 +887,7 @@ class RayPPOTrainer(object):
                     batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
                     batch = batch.union(gen_batch_output)
 
-                    # balance the number of valid tokens on each dp rank.
-                    # Note that this breaks the order of data inside the batch.
-                    # Please take care when you implement group based adv computation such as GRPO and rloo
-                    self._balance_batch(batch, metrics=metrics)
+
 
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
@@ -964,6 +948,12 @@ class RayPPOTrainer(object):
                         batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
                         batch.meta_info.update({'optimistic_critic': True})
                         metrics.update(optimism_metrics)
+                    
+                                # balance the number of valid tokens on each dp rank.
+                    # Note that this breaks the order of data inside the batch.
+                    # Please take care when you implement group based adv computation such as GRPO and rloo
+                    self._balance_batch(batch, metrics=metrics)
+                    
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
