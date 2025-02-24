@@ -2367,3 +2367,68 @@ Loading the DigitalLearningGmbH/MATH-lighteval dataset from huggingface...
 [36m(main_task pid=3379396)[0m step:4 - global_seqlen/min:1378220.000 - global_seqlen/max:1389990.000 - global_seqlen/minmax_diff:11770.000 - global_seqlen/balanced_min:1386470.000 - global_seqlen/balanced_max:1386470.000 - global_seqlen/mean:1386470.000 - original_advantages:0.000 - optimistic_coef:0.010 - optimistic_advantages:0.000 - actor/kl_loss:nan - actor/kl_coef:0.001 - actor/entropy_loss:nan - actor/pg_loss:nan - actor/pg_clipfrac:0.000 - actor/ppo_kl:nan - actor/grad_norm:nan - mfu/actor:0.000 - actor/lr:0.000 - critic/score/mean:0.000 - critic/score/max:0.000 - critic/score/min:0.000 - critic/rewards/mean:0.000 - critic/rewards/max:0.000 - critic/rewards/min:0.000 - critic/advantages/mean:0.000 - critic/advantages/max:0.000 - critic/advantages/min:0.000 - critic/returns/mean:0.000 - critic/returns/max:0.000 - critic/returns/min:0.000 - response_length/mean:2048.000 - response_length/max:2048.000 - response_length/min:2048.000 - response_length/clip_ratio:1.000 - prompt_length/mean:118.359 - prompt_length/max:884.000 - prompt_length/min:52.000 - prompt_length/clip_ratio:0.000 - timing_s/gen:2831.184 - timing_s/old_log_prob:593.544 - timing_s/ref:593.468 - timing_s/adv:3.139 - timing_s/update_actor:2290.394 - timing_s/step:6312.285 - timing_per_token_ms/ref:0.054 - timing_per_token_ms/gen:0.270 - timing_per_token_ms/adv:0.000 - timing_per_token_ms/update_actor:0.206
 [36m(main_task pid=3379396)[0m step:5 - global_seqlen/min:1379150.000 - global_seqlen/max:1395715.000 - global_seqlen/minmax_diff:16565.000 - global_seqlen/balanced_min:1385773.000 - global_seqlen/balanced_max:1385774.000 - global_seqlen/mean:1385773.750 - original_advantages:0.000 - optimistic_coef:0.010 - optimistic_advantages:0.000 - actor/kl_loss:nan - actor/kl_coef:0.001 - actor/entropy_loss:nan - actor/pg_loss:nan - actor/pg_clipfrac:0.000 - actor/ppo_kl:nan - actor/grad_norm:nan - mfu/actor:0.000 - actor/lr:0.000 - critic/score/mean:0.001 - critic/score/max:1.000 - critic/score/min:0.000 - critic/rewards/mean:0.001 - critic/rewards/max:1.000 - critic/rewards/min:0.000 - critic/advantages/mean:0.000 - critic/advantages/max:0.000 - critic/advantages/min:0.000 - critic/returns/mean:0.000 - critic/returns/max:0.000 - critic/returns/min:0.000 - response_length/mean:2048.000 - response_length/max:2048.000 - response_length/min:2048.000 - response_length/clip_ratio:1.000 - prompt_length/mean:117.271 - prompt_length/max:882.000 - prompt_length/min:51.000 - prompt_length/clip_ratio:0.000 - timing_s/gen:2829.519 - timing_s/old_log_prob:592.845 - timing_s/ref:587.539 - timing_s/adv:3.413 - timing_s/update_actor:2252.295 - timing_s/step:6266.130 - timing_per_token_ms/ref:0.053 - timing_per_token_ms/gen:0.270 - timing_per_token_ms/adv:0.000 - timing_per_token_ms/update_actor:0.203
 [36m(main_task pid=3379396)[0m step:6 - global_seqlen/min:1380110.000 - global_seqlen/max:1392600.000 - global_seqlen/minmax_diff:12490.000 - global_seqlen/balanced_min:1386882.000 - global_seqlen/balanced_max:1386883.000 - global_seqlen/mean:1386882.500 - original_advantages:0.000 - optimistic_coef:0.010 - optimistic_advantages:0.000 - actor/kl_loss:nan - actor/kl_coef:0.001 - actor/entropy_loss:nan - actor/pg_loss:nan - actor/pg_clipfrac:0.000 - actor/ppo_kl:nan - actor/grad_norm:nan - mfu/actor:0.000 - actor/lr:0.000 - critic/score/mean:0.000 - critic/score/max:0.000 - critic/score/min:0.000 - critic/rewards/mean:0.000 - critic/rewards/max:0.000 - critic/rewards/min:0.000 - critic/advantages/mean:0.000 - critic/advantages/max:0.000 - critic/advantages/min:0.000 - critic/returns/mean:0.000 - critic/returns/max:0.000 - critic/returns/min:0.000 - response_length/mean:2048.000 - response_length/max:2048.000 - response_length/min:2048.000 - response_length/clip_ratio:1.000 - prompt_length/mean:119.004 - prompt_length/max:947.000 - prompt_length/min:52.000 - prompt_length/clip_ratio:0.000 - timing_s/gen:2837.527 - timing_s/old_log_prob:593.305 - timing_s/ref:589.576 - timing_s/adv:3.054 - timing_s/update_actor:2292.189 - timing_s/step:6316.129 - timing_per_token_ms/ref:0.053 - timing_per_token_ms/gen:0.271 - timing_per_token_ms/adv:0.000 - timing_per_token_ms/update_actor:0.207
+[36m(main_task pid=3379396)[0m step:7 - global_seqlen/min:1380680.000 - global_seqlen/max:1393260.000 - global_seqlen/minmax_diff:12580.000 - global_seqlen/balanced_min:1387803.000 - global_seqlen/balanced_max:1387804.000 - global_seqlen/mean:1387803.750 - original_advantages:0.000 - optimistic_coef:0.010 - optimistic_advantages:0.000 - actor/kl_loss:nan - actor/kl_coef:0.001 - actor/entropy_loss:nan - actor/pg_loss:nan - actor/pg_clipfrac:0.000 - actor/ppo_kl:nan - actor/grad_norm:nan - mfu/actor:0.000 - actor/lr:0.000 - critic/score/mean:0.000 - critic/score/max:0.000 - critic/score/min:0.000 - critic/rewards/mean:0.000 - critic/rewards/max:0.000 - critic/rewards/min:0.000 - critic/advantages/mean:0.000 - critic/advantages/max:0.000 - critic/advantages/min:0.000 - critic/returns/mean:0.000 - critic/returns/max:0.000 - critic/returns/min:0.000 - response_length/mean:2048.000 - response_length/max:2048.000 - response_length/min:2048.000 - response_length/clip_ratio:1.000 - prompt_length/mean:120.443 - prompt_length/max:935.000 - prompt_length/min:52.000 - prompt_length/clip_ratio:0.000 - timing_s/gen:2830.544 - timing_s/old_log_prob:593.701 - timing_s/ref:592.841 - timing_s/adv:3.107 - timing_s/update_actor:2289.780 - timing_s/step:6310.427 - timing_per_token_ms/ref:0.053 - timing_per_token_ms/gen:0.270 - timing_per_token_ms/adv:0.000 - timing_per_token_ms/update_actor:0.206
+[33m(raylet)[0m A worker died or was killed while executing a task by an unexpected system error. To troubleshoot the problem, check the logs for the dead worker. RayTask ID: fffffffffffffffffc66b3b5ed7f714ea9efd9e501000000 Worker ID: 9f080519c670f8c9e0a4b77786b059b927ce771a982c110f27b6f991 Node ID: b31f25014d5ebc82f2732e0f994cf43fa2ae1a17b1f75215c2e740ef Worker IP address: 10.14.38.55 Worker port: 37589 Worker PID: 3380095 Worker exit type: SYSTEM_ERROR Worker exit detail: Worker exits unexpectedly. Worker exits with an exit code 1. The process receives a SIGTERM.
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', 'algorithm.optimism_coef=0.01', 'algorithm.optimistic_actor=True', 'data.train_files=/wang_ssd/zhihanliu/data//train.parquet', 'data.val_files=/wang_ssd/zhihanliu/data//test.parquet', 'data.custom_temp_dir=/wang_ssd/zhihanliu/tmp/ray/', 'data.train_batch_size=1024', 'data.val_batch_size=1024', 'data.max_prompt_length=1024', 'data.max_response_length=2048', 'actor_rollout_ref.model.path=Qwen/Qwen2.5-3B-Instruct', 'actor_rollout_ref.actor.optim.lr=1e-6', 'actor_rollout_ref.model.use_remove_padding=True', 'actor_rollout_ref.actor.ppo_mini_batch_size=256', 'actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=8', 'actor_rollout_ref.actor.use_kl_loss=True', 'actor_rollout_ref.actor.kl_loss_coef=0.001', 'actor_rollout_ref.actor.kl_loss_type=low_var_kl', 'actor_rollout_ref.model.enable_gradient_checkpointing=True', 'actor_rollout_ref.actor.fsdp_config.param_offload=False', 'actor_rollout_ref.actor.fsdp_config.grad_offload=False', 'actor_rollout_ref.actor.fsdp_config.optimizer_offload=False', 'actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=32', 'actor_rollout_ref.rollout.tensor_model_parallel_size=2', 'actor_rollout_ref.rollout.name=vllm', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.6', 'actor_rollout_ref.rollout.n=5', 'actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=32', 'actor_rollout_ref.ref.fsdp_config.param_offload=True', 'algorithm.kl_ctrl.kl_coef=0.001', 'trainer.critic_warmup=0', 'trainer.logger=[console,wandb]', 'trainer.project_name=Qwen2.5-3B-Instruct-GRPO', 'trainer.experiment_name=MATH-mex0.01', 'trainer.n_gpus_per_node=8', 'trainer.nnodes=1', 'trainer.save_freq=10', 'trainer.test_freq=10', 'trainer.total_epochs=2']
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 240, in <module>
+    main()
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 223, in run_and_report
+    raise ex
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+            ^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 132, in run
+    _ = ret.return_value
+        ^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 128, in main
+    run_ppo(config)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 142, in run_ppo
+    ray.get(main_task.remote(config, compute_score))
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/client_mode_hook.py", line 103, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 2772, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 919, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ActorDiedError): [36mray::main_task()[39m (pid=3379396, ip=10.14.38.55)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 236, in main_task
+    trainer.fit()
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/ppo/ray_trainer.py", line 979, in fit
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 42, in func
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.ActorDiedError: The actor died unexpectedly before finishing this task.
+	class_name: create_colocated_worker_cls.<locals>.WorkerDict
+	actor_id: fc66b3b5ed7f714ea9efd9e501000000
+	pid: 3380095
+	name: DcMD2xWorkerDict_0:0
+	namespace: 294021d7-3837-4e85-bfe7-5feacda92a7a
+	ip: 10.14.38.55
+The actor is dead because its worker process has died. Worker exit type: SYSTEM_ERROR Worker exit detail: Worker exits unexpectedly. Worker exits with an exit code 1. The process receives a SIGTERM.
+[36m(WorkerDict pid=3380370)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3380370)[0m   with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined][32m [repeated 7x across cluster][0m

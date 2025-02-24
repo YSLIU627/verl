@@ -108,13 +108,12 @@ def compute_gae_advantage_return(token_level_rewards: torch.Tensor, values: torc
 def compute_optimism_loss(
         token_level_rewards: torch.Tensor,
         index: torch.Tensor, 
-        kl: float, 
+        kl_ceof: float, 
         sqrt: bool = True
 ):
     id2score = defaultdict(list)
     id2mean = {}
     id2index = defaultdict(list)
-    id2logsumexp = {}
 
     with torch.no_grad():
         bsz = token_level_rewards.shape[0]
@@ -126,11 +125,11 @@ def compute_optimism_loss(
                 return 0. * token_level_rewards
                 #id2std[idx] = torch.tensor(1.0)
             elif len(id2score[idx]) > 1:
-                id2mean[idx] = torch.mean(torch.tensor(id2score[idx]), dim = 0)
-                sumexp = torch.mean(torch.tensor([torch.exp(( _ - id2mean[idx])/ kl) for _ in id2score[idx]]), dim = 0)
-                    
+                #id2mean[idx] = torch.mean(torch.tensor(id2score[idx]), dim = 0)
+                #sumexp = torch.mean(torch.tensor([torch.exp(( _ - id2mean[idx])/kl_ceof) for _ in id2score[idx]]), dim = 0)
+                variance = torch.var(torch.tensor([id2score[idx]]), dim = 0)   
                 for index in id2index:
-                    token_level_rewards[i] = kl * torch.log(sumexp)
+                    token_level_rewards[i] = variance/2.
                 #id2logsumexp[idx] = torch.mean(torch.tensor(id2score[idx] - id2mean[idx]), dim = 0)
             else:
                 raise ValueError(f"no score in prompt index: {idx}")

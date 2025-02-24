@@ -13,7 +13,7 @@ PROJECT_NAME=Qwen2.5-3B-Instruct-GRPO
 MODEL_NAME=Qwen/Qwen2.5-3B-Instruct
 EXPERIMENT_NAME=MATH_baseline
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
-
+DATA_PATH_SUFF=TASK_NAME
 
 ### preprocess the dataset
 python3 examples/data_preprocess/${TASK_NAME}.py --local_dir $HOME/data/$DATA_PATH_SUFF 

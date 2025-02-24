@@ -118,8 +118,9 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
 def add_optimism_loss(data: DataProto, rollout_n: int, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'advantages'):
     token_level_rewards = data.batch[optimism_term].clone()
     if optimism_term == 'advantages':
-        token_level_rewards = coef * core_algos.compute_optimism_loss(token_level_rewards,data.non_tensor_batch['uid'],kl_ctrl.value, True)
+        token_level_rewards += coef * core_algos.compute_optimism_loss(token_level_rewards,data.non_tensor_batch['uid'],kl_ctrl.value, True)
     elif optimism_term == 'returns':
+        raise("there is a bug.")
         token_level_rewards = coef * core_algos.compute_optimism_loss(token_level_rewards,data.non_tensor_batch['uid'],kl_ctrl.value, False)
     else:
         raise NotImplementedError
