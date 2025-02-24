@@ -111,25 +111,27 @@ def compute_optimism_loss(
         kl_ceof: float, 
         sqrt: bool = True
 ):
-    id2score = defaultdict(list)
+    #id2score = defaultdict(list)
     id2mean = {}
-    id2index = defaultdict(list)
+    id2loc = defaultdict(list)
 
     with torch.no_grad():
         bsz = token_level_rewards.shape[0]
-        for i in range(bsz):
-            id2score[index[i]].append(token_level_rewards[i])
-            id2index[index[i]].append(i)
-        for idx in id2score:
-            if len(id2score[idx]) == 1:
+        
+        for loc in range(bsz):
+            #id2score[index[i]].append(token_level_rewards[i])
+            id2loc[index[loc]].append(loc)
+        for idx in id2loc:
+            if len(id2loc[idx]) == 1:
                 return 0. * token_level_rewards
                 #id2std[idx] = torch.tensor(1.0)
-            elif len(id2score[idx]) > 1:
+            elif len(id2loc[idx]) > 1:
                 #id2mean[idx] = torch.mean(torch.tensor(id2score[idx]), dim = 0)
                 #sumexp = torch.mean(torch.tensor([torch.exp(( _ - id2mean[idx])/kl_ceof) for _ in id2score[idx]]), dim = 0)
-                variance = torch.var(torch.tensor([id2score[idx]]), dim = 0)   
-                for index in id2index:
-                    token_level_rewards[i] = variance/2.
+                variance = torch.var(torch.cat([token_level_rewards[loc].unsqueeze(0) for loc in id2loc[idx]], dim = 0), dim = 0)   
+                for loc in id2loc[idx]:
+                    
+                    token_level_rewards[loc] = variance/2.
                 #id2logsumexp[idx] = torch.mean(torch.tensor(id2score[idx] - id2mean[idx]), dim = 0)
             else:
                 raise ValueError(f"no score in prompt index: {idx}")
