@@ -935,7 +935,7 @@ class RayPPOTrainer(object):
                         #attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
                         #attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
                         #assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
-                        prompt_length = batch_correction.batch["prompt"].shape[-1]
+                        prompt_length = batch_correction.batch["prompts"].shape[-1]
                         batch_correction_masked.batch["position_ids"] = batch_correction.batch["position_ids"]
                         batch_correction_masked.batch["input_ids"] = torch.cat((batch_correction_masked.batch["input_ids"], batch_correction.batch["input_ids"][:,prompt_length:]), dim = -1)
                         batch_correction_masked.batch["attention_mask"] = torch.cat((batch_correction_masked.batch["attention_mask"], batch_correction.batch["attention_mask"][:,prompt_length:]), dim = -1)
