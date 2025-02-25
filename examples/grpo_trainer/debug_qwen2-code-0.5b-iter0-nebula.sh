@@ -35,8 +35,8 @@ python3 -m verl.trainer.main_ppo_correct \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
-    data.max_prompt_length=3096 \
-    data.max_response_length=2048 \
+    data.max_prompt_length=256 \
+    data.max_response_length=128 \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-Coder-0.5B-Instruct \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -53,7 +53,7 @@ python3 -m verl.trainer.main_ppo_correct \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
-    actor_rollout_ref.rollout.n=1 \
+    actor_rollout_ref.rollout.n=2 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=40 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \

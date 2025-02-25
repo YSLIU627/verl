@@ -144,8 +144,11 @@ class DataParallelPPOCritic(BasePPOCritic):
         # make sure we are in training mode
         self.critic_module.train()
         metrics = {}
-
-        select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
+        optimism = data.meta_info.get("optimistic_critic", False)
+        if optimism:
+            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns', 'optimistic_returns']
+        else:
+            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
         batch = data.select(batch_keys=select_keys).batch
         # Split to make minibatch iterator for updating the actor
         # See PPO paper for details. https://arxiv.org/abs/1707.06347
@@ -179,13 +182,16 @@ class DataParallelPPOCritic(BasePPOCritic):
                 vpreds = self._forward_micro_batch(data)
 
                 # assert not torch.any(torch.isnan(vpreds)).item()
-
+                if optimism:
+                    optimism = data['optimistic_returns']
+                else:
+                    optimism = False
                 vf_loss, vf_clipfrac = core_algos.compute_value_loss(vpreds=vpreds,
-                                                                     values=values,
-                                                                     returns=returns,
-                                                                     eos_mask=eos_mask,
-                                                                     cliprange_value=self.config.cliprange_value,)
-                if data.meta_info.get("optimistic_critic", False):
+                                                                    values=values,
+                                                                    returns=returns,
+                                                                    eos_mask=eos_mask,
+                                                                    cliprange_value=self.config.cliprange_value)
+                if optimism:
                     vf_loss += data['optimistic_returns']
                 if self.config.use_dynamic_bsz:
                     # relative to the dynamic bsz
