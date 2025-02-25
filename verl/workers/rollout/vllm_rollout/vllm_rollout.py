@@ -145,7 +145,7 @@ class vLLMRollout(BaseRollout):
             setattr(self.sampling_params, key, value)
 
     @torch.no_grad()
-    def generate_sequences(self, prompts: DataProto, single_rollout: bool = False, **kwargs) -> DataProto:
+    def generate_sequences(self, prompts: DataProto, **kwargs) -> DataProto:
         # rebuild vllm cache engine
         if self.config.free_cache_engine:
             self.inference_engine.init_cache_engine()
@@ -159,7 +159,9 @@ class vLLMRollout(BaseRollout):
         eos_token_id = prompts.meta_info['eos_token_id']
 
         batch_size = idx.size(0)
-
+        print("=="*30)
+        print(idx.size)
+        print("=="*30)
         idx_list = []
         # parse idx from torch.Tensor to List[List[str]]
         for i in range(batch_size):
@@ -175,7 +177,10 @@ class vLLMRollout(BaseRollout):
                 'temperature': 0,
                 'n': 1  # if greedy, only 1 response
             }
-
+        if not prompts.meta_info.get('single_rollout', False):
+            kwargs = {
+                'n': 1
+            }
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
             output = self.inference_engine.generate(

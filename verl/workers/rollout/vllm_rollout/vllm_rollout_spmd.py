@@ -159,7 +159,9 @@ class vLLMRollout(BaseRollout):
         eos_token_id = prompts.meta_info['eos_token_id']
 
         batch_size = idx.size(0)
-
+        #print("=="*30)
+        #print(idx.size)
+        #print("=="*30)
         idx_list = []
         # parse idx from torch.Tensor to List[List[str]]
         for i in range(batch_size):
@@ -175,7 +177,10 @@ class vLLMRollout(BaseRollout):
                 'temperature': 0,
                 'n': 1  # if greedy, only 1 response
             }
-
+        if not prompts.meta_info.get('single_rollout', False):
+            kwargs = {
+                'n': 1
+            }
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
             outputs = self.inference_engine.generate(

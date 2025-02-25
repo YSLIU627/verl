@@ -919,7 +919,7 @@ class RayPPOTrainer(object):
                             list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
                             list_batch_masked.append(DataProto.from_dict({"input_ids":input_ids_masked, "attention_mask":attention_mask_masked}))
                         prompt_batch = DataProto.concat(list_batch)
-                        prompt_batch_masked = DataProto.concat(list_batch_masked)
+                        batch_correction_masked = DataProto.concat(list_batch_masked)
                         prompt_batch.meta_info.update({'single_rollout': True,'final_round': True})
                         gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(prompt_batch)
                         batch_correction = gen_batch_output_correction.union(pre_batch)
