@@ -108,11 +108,11 @@ def compute_gae_advantage_return(token_level_rewards: torch.Tensor, values: torc
 def compute_optimism_loss(
         token_level_rewards: torch.Tensor,
         index: torch.Tensor, 
-        kl_ceof: float, 
-        sqrt: bool = True
+        kl_coef: float = 0., 
+        sqrt: bool = True,
+        optimism_coeff: float = 0.
 ):
     #id2score = defaultdict(list)
-    id2mean = {}
     id2loc = defaultdict(list)
 
     with torch.no_grad():
@@ -131,7 +131,7 @@ def compute_optimism_loss(
                 variance = torch.var(torch.cat([token_level_rewards[loc].unsqueeze(0) for loc in id2loc[idx]], dim = 0), dim = 0)   
                 for loc in id2loc[idx]:
                     
-                    token_level_rewards[loc] = variance/2.
+                    token_level_rewards[loc] = optimism_coeff * variance/2.
                 #id2logsumexp[idx] = torch.mean(torch.tensor(id2score[idx] - id2mean[idx]), dim = 0)
             else:
                 raise ValueError(f"no score in prompt index: {idx}")

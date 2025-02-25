@@ -145,10 +145,11 @@ class DataParallelPPOCritic(BasePPOCritic):
         self.critic_module.train()
         metrics = {}
         optimism = data.meta_info.get("optimistic_critic", False)
+        optimism_coeff = data.meta_info.get("optimistic_coeff", 0.)
         if optimism:
-            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns', 'optimistic_returns']
-        else:
-            select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
+            index = data.non_tensor_batch['uid']
+
+        select_keys = ['input_ids', 'responses', 'attention_mask', 'position_ids', 'values', 'returns']
         batch = data.select(batch_keys=select_keys).batch
         # Split to make minibatch iterator for updating the actor
         # See PPO paper for details. https://arxiv.org/abs/1707.06347
@@ -182,17 +183,19 @@ class DataParallelPPOCritic(BasePPOCritic):
                 vpreds = self._forward_micro_batch(data)
 
                 # assert not torch.any(torch.isnan(vpreds)).item()
-                if optimism:
-                    optimism = data['optimistic_returns']
-                else:
-                    optimism = False
+
                 vf_loss, vf_clipfrac = core_algos.compute_value_loss(vpreds=vpreds,
                                                                      values=values,
                                                                      returns=returns,
                                                                      eos_mask=eos_mask,
                                                                      cliprange_value=self.config.cliprange_value)
                 if optimism:
-                    vf_loss += data['optimistic_returns']
+                    vf_loss += core_algos.compute_optimism_loss(
+                        token_level_rewards=vpreds,
+                        index=index,
+                        sqrt=False,
+                        optimism_coeff=optimism_coeff
+                    )
                 if self.config.use_dynamic_bsz:
                     # relative to the dynamic bsz
                     loss = vf_loss * (len(data) / self.config.ppo_mini_batch_size)
