@@ -23,7 +23,7 @@ tensorflow/my_graph/*
 .idea/
 # C extensions
 *.so
-
+nohup.out
 # Distribution / packaging
 .Python
 env/
