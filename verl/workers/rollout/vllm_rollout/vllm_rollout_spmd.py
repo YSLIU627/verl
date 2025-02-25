@@ -177,7 +177,7 @@ class vLLMRollout(BaseRollout):
                 'temperature': 0,
                 'n': 1  # if greedy, only 1 response
             }
-        if not prompts.meta_info.get('single_rollout', False):
+        if prompts.meta_info.get('single_rollout', False):
             kwargs = {
                 'n': 1
             }
