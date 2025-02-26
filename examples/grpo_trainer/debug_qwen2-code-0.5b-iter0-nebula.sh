@@ -1,5 +1,5 @@
 #set -x
-#export CUDA_VISIBLE_DEVICES=2,3,4,5
+export CUDA_VISIBLE_DEVICES=1,2,3,4
 
 ### task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=opencoder
@@ -62,7 +62,7 @@ python3 -m verl.trainer.main_ppo_correct \
     trainer.project_name=${PROJECT_NAME} \
     trainer.experiment_name=${EXPERIMENT_NAME} \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
-    trainer.n_gpus_per_node=8 \
+    trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=25 \
     trainer.test_freq=25 \

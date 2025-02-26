@@ -87,6 +87,16 @@ from verl.utils.torch_functional import masked_mean
 
 def wrap_correction(dict_stat):
                     return {"correction_" + key : value  for key, value in dict_stat.items()}
+def correction_prompt_template(info, prompt, response, reward):
+    if reward[-1] < 0.99:
+        if isinstance(info, str):
+            new_prompt = f"Unfortunately, your provided code does not pass all the tests. Here is the detailed information: {info}. Please make a reflection and give the correct code."
+        else:
+                new_prompt = f"Unfortunately, your provided code does not pass all the tests. Please make a reflection and give the correct code."
+    else:
+        new_prompt = "Good! You pass all the tests. Please refine your provided code to optimize the running time while keeping the correctness."
+    return new_prompt
+
 def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, kl_penalty='kl'):
     responses = data.batch['responses']
     response_length = responses.size(1)
@@ -618,7 +628,7 @@ class RayPPOTrainer(object):
             test_batch = test_batch.union(test_output_gen_batch)
 
             # evaluate using reward_function
-            reward_tensor = self.val_reward_fn(test_batch)
+            reward_tensor = self.val_reward_fn(test_batch, sequences_str = output_texts)
 
             # Store scores
             scores = reward_tensor.sum(-1).cpu().tolist()
@@ -644,6 +654,148 @@ class RayPPOTrainer(object):
         for data_source, rewards in data_source_reward.items():
             metric_dict[f'val/test_score/{data_source}'] = np.mean(rewards)
 
+        return metric_dict
+    def _validate_correction(self):
+        reward_tensor_lst = []
+        data_source_lst = []
+        reward_tensor_lst_correction = []
+        data_source_lst_correction = []
+        # Lists to collect samples for the table
+        sample_inputs = []
+        sample_outputs = []
+        sample_scores = []
+        
+        sample_inputs_correction = []
+        sample_outputs_correction = []
+        sample_scores_correction = []
+        for test_data in self.val_dataloader:
+            test_batch = DataProto.from_single_dict(test_data)
+            prompts = test_data[self.config.data.prompt_key]
+            # we only do validation on rule-based rm
+            if self.config.reward_model.enable and test_batch[0].non_tensor_batch['reward_model']['style'] == 'model':
+                return {}
+
+            # Store original inputs
+            input_ids = test_batch.batch['input_ids']
+            input_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
+            sample_inputs.extend(input_texts)
+
+            test_gen_batch = test_batch.pop(['input_ids', 'attention_mask', 'position_ids'])
+            test_gen_batch.meta_info = {
+                'eos_token_id': self.tokenizer.eos_token_id,
+                'pad_token_id': self.tokenizer.pad_token_id,
+                'recompute_log_prob': False,
+                'do_sample': False,
+                'validate': True,
+            }
+
+            # pad to be divisible by dp_size
+            test_gen_batch_padded, pad_size = pad_dataproto_to_divisor(test_gen_batch, self.actor_rollout_wg.world_size)
+            test_output_gen_batch_padded = self.actor_rollout_wg.generate_sequences(test_gen_batch_padded)
+            # unpad
+            test_output_gen_batch = unpad_dataproto(test_output_gen_batch_padded, pad_size=pad_size)
+            print('validation generation end')
+
+            # Store generated outputs
+            output_ids = test_output_gen_batch.batch['responses']
+            output_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in output_ids]
+            sample_outputs.extend(output_texts)
+
+            test_batch = test_batch.union(test_output_gen_batch)
+
+            # evaluate using reward_function
+            reward_tensor, infos = self.val_reward_fn(test_batch, return_info = True, sequences_str = output_texts)
+
+            # Store scores
+            scores = reward_tensor.sum(-1).cpu().tolist()
+            sample_scores.extend(scores)
+
+            reward_tensor_lst.append(reward_tensor)
+            data_source_lst.append(test_batch.non_tensor_batch.get('data_source', ['unknown'] * reward_tensor.shape[0]))
+            ### Second turn for correction
+            list_batch = []
+            for info, prompt, response, reward in zip(infos, prompts, output_texts, reward_tensor):
+                new_prompt = correction_prompt_template(info, prompt, response, reward)
+
+                new_prompt = [prompt, {"role":"assistant", "content": response}, {"role":"user","content":new_prompt}]
+                prompt_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
+                input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
+                    tokenizer=self.tokenizer,
+                    max_length=self.config.data.max_prompt_length,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    left_pad=True,
+                    truncation='right')
+                position_ids = compute_position_id_with_mask(attention_mask)
+                list_batch.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
+                #position_ids = compute_position_id_with_mask(attention_mask)
+            test_gen_batch = DataProto.concat(list_batch)
+            test_gen_batch.meta_info = {
+                'eos_token_id': self.tokenizer.eos_token_id,
+                'pad_token_id': self.tokenizer.pad_token_id,
+                'recompute_log_prob': False,
+                'do_sample': False,
+                'validate': True,
+            }
+            test_gen_batch_padded, pad_size = pad_dataproto_to_divisor(test_gen_batch, self.actor_rollout_wg.world_size)
+            test_output_gen_batch_padded = self.actor_rollout_wg.generate_sequences(test_gen_batch_padded)
+            # unpad
+            
+            test_output_gen_batch = unpad_dataproto(test_output_gen_batch_padded, pad_size=pad_size)
+            print('validation generation end')
+
+            # Store generated outputs
+            output_ids = test_output_gen_batch.batch['responses']
+            output_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in output_ids]
+            sample_outputs_correction.extend(output_texts)
+            test_batch = DataProto.from_single_dict(test_data)
+            test_batch.pop(['input_ids', 'attention_mask', 'position_ids'])
+            test_batch = test_batch.union(test_output_gen_batch)
+
+            # evaluate using reward_function
+            reward_tensor= self.val_reward_fn(test_batch, return_info = False, sequences_str = output_texts)
+
+            # Store scores
+            scores = reward_tensor.sum(-1).cpu().tolist()
+            sample_scores_correction.extend(scores)
+
+            reward_tensor_lst_correction.append(reward_tensor)
+            data_source_lst_correction.append(test_batch.non_tensor_batch.get('data_source', ['unknown'] * reward_tensor.shape[0]))
+        
+        
+        self._maybe_log_val_generations_to_wandb(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
+        self._maybe_log_val_generations_to_wandb(inputs=sample_inputs_correction, outputs=sample_outputs_correction, scores=sample_scores_correction)
+        
+        ## First
+        reward_tensor = torch.cat(reward_tensor_lst, dim=0).sum(-1).cpu()  # (batch_size,)
+        data_sources = np.concatenate(data_source_lst, axis=0)
+
+        # evaluate test_score based on data source
+        data_source_reward = {}
+        for i in range(reward_tensor.shape[0]):
+            data_source = data_sources[i]
+            if data_source not in data_source_reward:
+                data_source_reward[data_source] = []
+            data_source_reward[data_source].append(reward_tensor[i].item())
+
+        metric_dict = {}
+        for data_source, rewards in data_source_reward.items():
+            metric_dict[f'val/test_score/{data_source}'] = np.mean(rewards)
+        
+        ## Second
+        reward_tensor = torch.cat(reward_tensor_lst_correction, dim=0).sum(-1).cpu()  # (batch_size,)
+        data_sources = np.concatenate(data_source_lst_correction, axis=0)
+
+        # evaluate test_score based on data source
+        #data_source_reward = {}
+        for i in range(reward_tensor.shape[0]):
+            data_source = data_sources[i]
+            if data_source not in data_source_reward:
+                data_source_reward[data_source] = []
+            data_source_reward[data_source].append(reward_tensor[i].item())
+
+        for data_source, rewards in data_source_reward.items():
+            metric_dict[f'val/correction_test_score/{data_source}'] = np.mean(rewards)
+        
         return metric_dict
 
     def init_workers(self):
@@ -836,7 +988,7 @@ class RayPPOTrainer(object):
         # perform validation before training
         # currently, we only support validation using the reward_function.
         if self.val_reward_fn is not None and self.config.trainer.get('val_before_train', True):
-            val_metrics = self._validate()
+            val_metrics = self._validate_correction()
             pprint(f'Initial validation metrics: {val_metrics}')
             logger.log(data=val_metrics, step=self.global_steps)
             if self.config.trainer.get('val_only', False):
@@ -886,14 +1038,7 @@ class RayPPOTrainer(object):
                         reward_tensor, infos = self.reward_fn(batch, return_info = True, sequences_str = sequences_str)
                         batch.batch['token_level_scores'] = reward_tensor
                         for info, prompt, response, reward in zip(infos, prompts, sequences_str, reward_tensor):
-                            
-                            if reward[-1] < 0.99:
-                                if isinstance(info, str):
-                                    new_prompt = f"Unfortunately, your provided code does not pass all the tests. Here is the detailed information: {info}. Please make a reflection and give the correct code."
-                                else:
-                                     new_prompt = f"Unfortunately, your provided code does not pass all the tests. Please make a reflection and give the correct code."
-                            else:
-                                new_prompt = "Good! You pass all the tests. Please refine your provided code to optimize the running time while keeping the correctness."
+                            new_prompt = correction_prompt_template(info, prompt, response, reward)
 
                             new_prompt = [prompt, {"role":"assistant", "content": response}, {"role":"user","content":new_prompt}]
                             prompt_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
@@ -925,14 +1070,7 @@ class RayPPOTrainer(object):
                         gen_batch_output_correction = self.actor_rollout_wg.generate_sequences(prompt_batch)
                         batch_correction = gen_batch_output_correction.union(pre_batch)
                         #assert batch_correction.batch["attention_mask"].shape == batch.batch["attention_mask"].shape
-                        # we mask the additional part in the correction prompt
-                        # (Q1 , ....... Pad,A1, ...Pad) 
-                        # (1,1,0,0,...   0,1,1,0,0,0,0)
-                        # (Q1 ,A1,Q2, ..Pad,A2 , ..Pad)
-                        # (1,1,1,1,1,1,0,  ,1,1,0,0,,0)
-                        # we want to get 
-                        # (Q1 ,A1,Q2, ..Pad,A2, ...Pad)
-                        # (1,1,0,0,...   0,1,1,0,0,0,0)
+
                         #attention_mask_masked_prompt = batch_correction.batch["attention_mask"][:,:prompt_length] * batch.batch["attention_mask"][:,:prompt_length]
                         #attention_mask_masked = torch.cat((attention_mask_masked_prompt, batch_correction.batch["attention_mask"][:,prompt_length:]), dim = 1)
                         #assert attention_mask_masked.shape == batch_correction.batch["attention_mask"].shape
@@ -941,10 +1079,12 @@ class RayPPOTrainer(object):
                         batch_correction_masked.batch["responses"] = batch_correction.batch["responses"]
                         batch_correction_masked.batch["input_ids"] = torch.cat((batch_correction_masked.batch["input_ids"], batch_correction.batch["input_ids"][:,prompt_length:]), dim = -1)
                         batch_correction_masked.batch["attention_mask"] = torch.cat((batch_correction_masked.batch["attention_mask"], batch_correction.batch["attention_mask"][:,prompt_length:]), dim = -1)
-                       
+                        assert batch_correction_masked.batch["attention_mask"].shape == batch_correction.batch["attention_mask"].shape
+                        assert batch_correction_masked.batch["input_ids"].shape == batch_correction.batch["input_ids"].shape
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
                     batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
+                    batch_correction_masked.meta_info['global_token_num'] = torch.sum(batch_correction_masked.batch['attention_mask'], dim=-1).tolist()
                     
                     
                     
@@ -954,7 +1094,21 @@ class RayPPOTrainer(object):
                         # compute reference log_prob
                         with _timer('ref', timing_raw):
                             ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
+                            print("###"*30)
+                            print(pre_batch.batch.keys())
+                            print(pre_batch.non_tensor_batch.keys())
+                            print(pre_batch.meta_info.keys())
+                            print("***"*30)
+                            print(batch.batch.keys())
+                            print(batch.non_tensor_batch.keys())
+                            print(batch.meta_info.keys())
+
                             batch = batch.union(ref_log_prob)
+                            pprint("*-="*30)
+                            batch = batch_correction_masked.union(pre_batch)
+                            print(batch.batch.keys())
+                            print(batch.non_tensor_batch.keys())
+                            print(batch.meta_info.keys())
                             ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked.union(pre_batch))
                             batch_correction = batch_correction.union(ref_log_prob_correction)
                     del batch_correction_masked
@@ -1044,7 +1198,7 @@ class RayPPOTrainer(object):
                     if self.val_reward_fn is not None and self.config.trainer.test_freq > 0 and \
                         self.global_steps % self.config.trainer.test_freq == 0:
                         with _timer('testing', timing_raw):
-                            val_metrics: dict = self._validate()
+                            val_metrics: dict = self._validate_correction()
                         metrics.update(val_metrics)
 
                     if self.config.trainer.save_freq > 0 and \
