@@ -115,16 +115,17 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
 
     return data, metrics
 
-def add_optimism_loss(data: DataProto, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'advantages'):
-    token_level_rewards = data.batch[optimism_term].clone()
+def add_optimism_reward(data: DataProto, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'rewards'):
+    token_level_rewards = data.batch['token_level_rewards']
+    metrics = {'original_rewards': token_level_rewards.cpu().numpy().mean()}
     if optimism_term == 'advantages':
-        token_level_rewards += coef * core_algos.compute_optimism_loss(token_level_rewards=token_level_rewards,
+        token_level_rewards += coef * core_algos.compute_optimism_reward(token_level_rewards=token_level_rewards,
                                                                        index=data.non_tensor_batch['uid'],kl_coef=kl_ctrl.value,
                                                                        sqrt=True,optimism_coeff=coef)
     else:
         raise NotImplementedError
-    metrics = {f"original_{optimism_term}": data.batch[optimism_term].cpu().numpy().mean(),"optimistic_coef":coef, f"optimistic_{optimism_term}": token_level_rewards.cpu().numpy().mean()} 
-    data = data.union(DataProto.from_dict({f'optimistic_{optimism_term}': token_level_rewards}))
+    metrics = metrics.update({"optimistic_coef":coef, "optimistic_rewards": token_level_rewards.cpu().numpy().mean()} )
+    data.batch['token_level_rewards'] = token_level_rewards
     return data, metrics
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1):
@@ -184,7 +185,8 @@ def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_re
         data.batch['returns'] = returns
     else:
         raise NotImplementedError
-    return data
+    metric = {'advantages': advantages.cpu().numpy().mean()}
+    return data, metric
 
 
 def reduce_metrics(metrics: dict):
@@ -935,20 +937,21 @@ class RayPPOTrainer(object):
                             batch.batch['token_level_rewards'] = batch.batch['token_level_scores']
 
                         # compute advantages, executed on the driver process
-                        batch = compute_advantage(batch,
+                        
+                        if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
+                            assert self.config.actor_rollout_ref.rollout.n > 1
+                            batch, optimism_metrics = add_optimism_reward(batch, self.config.algorithm.optimism_coef, self.kl_ctrl,'rewards')
+                            batch.meta_info.update({'optimistic_actor': True})
+                            metrics.update(optimism_metrics)
+                        batch, adv_metrics = compute_advantage(batch,
                                                   adv_estimator=self.config.algorithm.adv_estimator,
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-                    if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
-                        assert self.config.actor_rollout_ref.rollout.n > 1
-                        batch, optimism_metrics = add_optimism_loss(batch, self.config.algorithm.optimism_coef, self.kl_ctrl, "advantages")
-                        batch.meta_info.update({'optimistic_actor': True})
-                        assert "optimistic_advantages" in batch.batch.keys()
-                        metrics.update(optimism_metrics)
+                        metrics.update(adv_metrics)
                     if self.config.algorithm.optimistic_critic and self.use_critic and self.config.algorithm.optimism_coef > 1e-6:
                         assert self.config.actor_rollout_ref.rollout.n > 1 
-                        #batch, optimism_metrics = add_optimism_loss(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
+                        #batch, optimism_metrics = add_optimism_reward(batch, self.config.actor_rollout_ref.rollout.n,self.config.algorithm.optimism_coef, self.kl_ctrl, "returns")
                         batch.meta_info.update({'optimistic_critic': True, 'optimism_coeff':self.config.algorithm.optimism_coef})
                         #metrics.update(optimism_metrics)
                     

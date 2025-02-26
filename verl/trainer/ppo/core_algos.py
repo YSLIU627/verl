@@ -105,7 +105,7 @@ def compute_gae_advantage_return(token_level_rewards: torch.Tensor, values: torc
         returns = advantages + values
         advantages = verl_F.masked_whiten(advantages, eos_mask)
     return advantages, returns
-def compute_optimism_loss(
+def compute_optimism_reward(
         token_level_rewards: torch.Tensor,
         index: torch.Tensor, 
         kl_coef: float = 0., 
