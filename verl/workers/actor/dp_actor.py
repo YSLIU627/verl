@@ -207,6 +207,7 @@ class DataParallelPPOActor(BasePPOActor):
         temperature = data.meta_info['temperature']  # temperature must be in the data.meta_info to avoid slient error
         optimism = data.meta_info.get("optimistic_actor", False)
         if optimism:
+            assert data.batch['advantages'].shape == data.batch['optimistic_advantages'].shape
             select_keys = ['responses', 'input_ids', 'attention_mask', 'position_ids', 'old_log_probs','optimistic_advantages']
         else:
             select_keys = ['responses', 'input_ids', 'attention_mask', 'position_ids', 'old_log_probs', 'advantages']
