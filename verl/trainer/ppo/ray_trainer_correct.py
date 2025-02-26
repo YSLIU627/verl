@@ -1109,7 +1109,10 @@ class RayPPOTrainer(object):
                         with _timer('ref', timing_raw):
                             ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
                             batch = batch_correction.union(ref_log_prob)
-                            ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked)
+                            if self.config.algorithm.kl_penalty < 1e-5:
+                                ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction)
+                            else:
+                                ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked)
                             batch_correction.batch['ref_log_prob'] = ref_log_prob_correction.batch['ref_log_prob']
                     del batch_correction_masked
                     
@@ -1146,7 +1149,7 @@ class RayPPOTrainer(object):
                         batch_correction.batch['token_level_scores'] = reward_tensor
 
                         # compute rewards. apply_kl_penalty if available
-                        if not self.config.actor_rollout_ref.actor.get('use_kl_loss', False):
+                        if not self.config.actor_rollout_ref.actor.get('use_kl_loss', False) and self.config.algorithm.kl_penalty < 1e-5:
                             batch, kl_metrics = apply_kl_penalty(batch,
                                                                  kl_ctrl=self.kl_ctrl,
                                                                  kl_penalty=self.config.algorithm.kl_penalty)
@@ -1155,13 +1158,18 @@ class RayPPOTrainer(object):
                             batch.batch['token_level_rewards'] = batch.batch['token_level_scores']
                         
                         # For correction: compute rewards. apply_kl_penalty if available
-                        if not self.config.actor_rollout_ref.actor.get('use_kl_loss', False):
+                        if self.kl_ctrl_correction >1e-6:
                             batch_correction, kl_metrics = apply_kl_penalty(batch_correction,
                                                                  kl_ctrl=self.kl_ctrl_correction,
                                                                  kl_penalty=self.config.algorithm.kl_penalty)
-                            metrics.update(wrap_correction(kl_metrics))
+                        elif not self.config.actor_rollout_ref.actor.get('use_kl_loss', False):
+                            batch, kl_metrics = apply_kl_penalty(batch,
+                                                                 kl_ctrl=self.kl_ctrl,
+                                                                 kl_penalty=self.config.algorithm.kl_penalty)
+                            
                         else:
-                            batch_correction.batch['token_level_rewards'] = batch_correction.batch['token_level_scores']
+                            batch.batch['token_level_rewards'] = batch.batch['token_level_scores']
+                        metrics.update(wrap_correction(kl_metrics))
                         # compute advantages, executed on the driver process
                         batch = compute_advantage(batch,
                                                   adv_estimator=self.config.algorithm.adv_estimator,
