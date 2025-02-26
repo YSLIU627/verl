@@ -1,5 +1,5 @@
 #set -x
-export CUDA_VISIBLE_DEVICES=1,2,3,4
+#export CUDA_VISIBLE_DEVICES=1,2,3,4
 
 ### task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=opencoder
@@ -33,9 +33,9 @@ python3 -m verl.trainer.main_ppo_correct \
     data.save_ppo_rollouts_path=rollouts/qwen2.5_code_0.5b_grpo/ \
     data.train_files=$HOME/data/$DATA_PATH_SUFF/train.parquet \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
-    data.train_batch_size=1024 \
+    data.train_batch_size=256 \
     data.val_batch_size=1024 \
-    data.max_prompt_length=256 \
+    data.max_prompt_length=128 \
     data.max_response_length=128 \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-Coder-0.5B-Instruct \
     actor_rollout_ref.actor.optim.lr=1e-6 \
@@ -49,12 +49,12 @@ python3 -m verl.trainer.main_ppo_correct \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.grad_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=40 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=2 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=40 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
@@ -62,7 +62,7 @@ python3 -m verl.trainer.main_ppo_correct \
     trainer.project_name=${PROJECT_NAME} \
     trainer.experiment_name=${EXPERIMENT_NAME} \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
-    trainer.n_gpus_per_node=4 \
+    trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
     trainer.save_freq=25 \
     trainer.test_freq=25 \
