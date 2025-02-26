@@ -85,7 +85,8 @@ class ResourcePoolManager:
 import torch
 from verl.utils.torch_functional import masked_mean
 
-
+def wrap_correction(dict_stat):
+                    return {"correction_" + key : value  for key, value in dict_stat.items()}
 def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, kl_penalty='kl'):
     responses = data.batch['responses']
     response_length = responses.size(1)
@@ -870,7 +871,7 @@ class RayPPOTrainer(object):
                                         # balance the number of valid tokens on each dp rank.
                     # Note that this breaks the order of data inside the batch.
                     # Please take care when you implement group based adv computation such as GRPO and rloo
-                    #self._balance_batch(batch, metrics=metrics)
+                    
                     ## Self-correction
                     list_batch = []
                     list_batch_masked = []
@@ -898,7 +899,7 @@ class RayPPOTrainer(object):
                             prompt_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
 
                             new_prompt_masked = [prompt]
-                            prompt_masked_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
+                            prompt_masked_with_chat_template = self.tokenizer.apply_chat_template(new_prompt_masked, add_generation_prompt=True, tokenize=False)
                             if debug_time:
                                 pprint("*"*10)
                                 pprint(prompt_with_chat_template)
@@ -944,6 +945,9 @@ class RayPPOTrainer(object):
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
                     batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()
+                    
+                    
+                    
                     # recompute old_log_probs
                     assert self.use_reference_policy
                     if self.use_reference_policy:
@@ -963,7 +967,9 @@ class RayPPOTrainer(object):
                         old_log_prob_correction = self.actor_rollout_wg.compute_log_prob(batch_correction)
                         batch_correction = batch_correction.union(old_log_prob_correction)
 
-                    
+                    self._balance_batch(batch, metrics=metrics)
+                    self._balance_batch(batch_correction, metrics=metrics)
+
                     # compute values
                     if self.use_critic:
                         with _timer('values', timing_raw):
@@ -999,7 +1005,7 @@ class RayPPOTrainer(object):
                             batch_correction, kl_metrics = apply_kl_penalty(batch_correction,
                                                                  kl_ctrl=self.kl_ctrl_correction,
                                                                  kl_penalty=self.config.algorithm.kl_penalty)
-                            metrics.update(kl_metrics)
+                            metrics.update(wrap_correction(kl_metrics))
                         else:
                             batch_correction.batch['token_level_rewards'] = batch_correction.batch['token_level_scores']
                         # compute advantages, executed on the driver process
@@ -1017,18 +1023,22 @@ class RayPPOTrainer(object):
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
                             critic_output = self.critic_wg.update_critic(batch)
+                            critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
+                            metrics.update(critic_output_metrics)
                             critic_output = self.critic_wg.update_critic(batch_correction)
-                        critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
-                        metrics.update(critic_output_metrics)
+                            critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
+                            metrics.update(wrap_correction(critic_output_metrics))
 
                     # implement critic warmup
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
                         with _timer('update_actor', timing_raw):
                             actor_output = self.actor_rollout_wg.update_actor(batch)
+                            actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
+                            metrics.update(actor_output_metrics)
                             actor_output = self.actor_rollout_wg.update_actor(batch_correction)
-                        actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
-                        metrics.update(actor_output_metrics)
+                            actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
+                            metrics.update(wrap_correction(actor_output_metrics))
 
                     # validate
                     if self.val_reward_fn is not None and self.config.trainer.test_freq > 0 and \
@@ -1041,8 +1051,7 @@ class RayPPOTrainer(object):
                             self.global_steps % self.config.trainer.save_freq == 0:
                         with _timer('save_checkpoint', timing_raw):
                             self._save_checkpoint()
-                def wrap_correction(dict_stat):
-                    return {"correction_" + key : value  for key, value in dict_stat.items()}
+                
                 # collect metrics
                 metrics.update(compute_data_metrics(batch=batch, use_critic=self.use_critic))
                 metrics.update(compute_timing_metrics(batch=batch, timing_raw=timing_raw))

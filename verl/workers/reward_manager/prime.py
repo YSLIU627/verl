@@ -66,24 +66,33 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
     # Process results
     if return_info:
         for result, completion, reference, task in zip(results, completions, references, tasks):
-            if isinstance(result[0], Exception) or result[0] is None:
+            if isinstance(result, Exception):
                 # Handle failed or timed-out tasks
                 scores.append(0.0)
                 infos.append(Exception)
-            elif result[0] is None:
-                scores.append(0.0)
-                infos.append(result[-1])
-            elif isinstance(result[0], (int, float, bool)):
-                scores.append(float(result[0]))
-                infos.append(result[-1])
-            else:
-                scores.append(float(result[0][0]))
-                infos.append(result[-1])
+            try:
+                score = result[0]
+                info = result[1]
+                if score is None:
+                    score = 0.0
+                elif isinstance(score, (int, float, bool)):
+                    score = float(score)
+                elif isinstance(score[0], (int, float, bool)):
+                    score = float(score[0])
+                else:
+                    score = float(score[0][0])
+            except:
+                score = 0.0
+                info = None
+            scores.append(score)
+            infos.append(info)
         return scores, infos
     for result, completion, reference, task in zip(results, completions, references, tasks):
         if isinstance(result, Exception) or result is None:
             # Handle failed or timed-out tasks
             scores.append(0.0)
+        elif isinstance(result,(int, float, bool)):
+            scores.append(float(result))
         elif isinstance(result[0], (int, float, bool)):
             scores.append(float(result[0]))
         else:
