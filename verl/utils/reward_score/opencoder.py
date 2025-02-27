@@ -2,7 +2,7 @@ from typing import List, Union
 from verl.utils.reward_score.code_utils import refine_text
 from verl.utils.reward_score.execute import check_correctness
 from verl.utils.reward_score.sanitize import sanitize
-
+import re
 
 PYTHON_STOP = [ "\nif __name__",
                 "\ndef main(",
@@ -45,7 +45,14 @@ def format_prompt(problem: str,
             prompt = prompt + "\n```python\n"
         return prompt
 
-
+def replace_line_numbers(s, n):
+    # 定义正则表达式模式，匹配 "line {数字}"
+    pattern = r'line (\d+)'
+    
+    # 使用 re.sub 进行替换，lambda 函数用于计算新的数字
+    result = re.sub(pattern, lambda match: f'line {int(match.group(1)) - n}', s)
+    
+    return result
 def compute_score(solution_str: str, ground_truth: Union[str,dict]):
     #retval = 0.
     try:
@@ -54,8 +61,10 @@ def compute_score(solution_str: str, ground_truth: Union[str,dict]):
             
             solution = sanitize(solution_str,ground_truth.get("entry_point") )
             #print(solution)
-            code =  "\n".join(PYTHON_IMPORTS)  + "\n"+ solution + "\n" + ground_truth['tests']
-                
+            if isinstance(ground_truth['tests'], str):
+                code =  "\n".join(PYTHON_IMPORTS)  + "\n"+ solution + "\n" + ground_truth['tests']
+            else:
+                code =  "\n".join(PYTHON_IMPORTS)  + "\n"+ solution + "\n" + '\n'.join(ground_truth['tests'])
         else:
             solution = sanitize(solution_str )
             code =  "\n".join(PYTHON_IMPORTS)  + "\n" + solution + "\n" + ground_truth 
@@ -63,6 +72,7 @@ def compute_score(solution_str: str, ground_truth: Union[str,dict]):
         #print(code,(feedback['result']))
         #print(feedback["result"])
         #assert isinstance(feedback["result"], str)
+        feedback['result'] =  replace_line_numbers( feedback['result'], len(PYTHON_IMPORTS))
         return (float(feedback["passed"]), feedback["result"])
     except Exception as e:
         print(e)

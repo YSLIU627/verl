@@ -11,21 +11,25 @@ import re
 def main(args):
     def make_map_fn():
         def process_fn(example, idx):
+            example['original_testcase'] = example['testcase']
+            modified_tests = []
             for i in range(len(example['testcase'])):
                 test = example['testcase'][i]
                 match = re.search(example['entry_point'] + r"\((.*?)\) == (.+)", test)
                 if match:
                     params = match.group(1).strip()  # 提取括号内的部分
                     result = match.group(2).strip()  # 提取 `==` 右侧的部分
-                    example['testcase'][i] += f""", "Fail to pass the test: {test} "
+                    test = example['testcase'][i] + f""", \"\"\"Fail to pass the test: {test} \"\"\"
                     """
+                    modified_tests.append(test)
+            example['testcase'] = modified_tests
             return example
 
         return process_fn
     dataset = datasets.load_dataset(args.get_data_dir, trust_remote_code=True)['train']
     train_dataset = dataset.map(function=make_map_fn(), with_indices=True,num_proc = os.cpu_count())
     if args.push_to_hub_dir:
-        train_dataset.push_to_hub(args.push_to_hub_dir + "_v1")
+        train_dataset.push_to_hub(args.push_to_hub_dir)
     elif args.save_dir:
         train_dataset.to_parquet(args.save_dir)
     result = [1,2]
