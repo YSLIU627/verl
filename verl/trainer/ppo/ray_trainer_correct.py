@@ -1108,7 +1108,7 @@ class RayPPOTrainer(object):
                         # compute reference log_prob
                         with _timer('ref', timing_raw):
                             ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
-                            batch = batch_correction.union(ref_log_prob)
+                            batch = batch.union(ref_log_prob)
                             if self.config.algorithm.zero_shot_kl:
                                 ref_log_prob_correction = self.ref_policy_wg.compute_ref_log_prob(batch_correction_masked)
                             else:
@@ -1158,7 +1158,7 @@ class RayPPOTrainer(object):
                             batch.batch['token_level_rewards'] = batch.batch['token_level_scores']
                         
                         # For correction: compute rewards. apply_kl_penalty if available
-                        if self.kl_ctrl_correction >1e-6:
+                        if self.kl_ctrl_correction.value >1e-6:
                             batch_correction, kl_metrics = apply_kl_penalty(batch_correction,
                                                                  kl_ctrl=self.kl_ctrl_correction,
                                                                  kl_penalty=self.config.algorithm.kl_penalty)
