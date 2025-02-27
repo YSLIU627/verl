@@ -159,6 +159,7 @@ algorithm:
   optimism_coef: 0.
   optimistic_critic: False
   optimistic_actor: False
+  zero_shot_kl: False
 trainer:
   total_epochs: 30
   total_training_steps: null

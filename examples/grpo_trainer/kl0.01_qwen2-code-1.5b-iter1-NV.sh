@@ -29,6 +29,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo_correct \
     algorithm.adv_estimator=grpo \
+    algorithm.zero_shot_kl=False \
     algorithm.kl_ctrl.kl_coef_correction=${KL_CORRECTION} \
     reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/ \
