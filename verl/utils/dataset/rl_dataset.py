@@ -69,7 +69,7 @@ class RLHFDataset(Dataset):
                  cache_dir='~/.cache/verl/rlhf',
                  chat_template_func=None,
                  return_raw_chat=False,
-                 truncation='error'):
+                 truncation='left'):
         if not isinstance(parquet_files, (List, ListConfig)):
             parquet_files = [parquet_files]
 
@@ -107,7 +107,8 @@ class RLHFDataset(Dataset):
         self.dataframe = pd.concat(dataframes)
 
         print(f'original dataset len: {len(self.dataframe)}')
-
+        if not self.filter_prompts:
+            return
         # filter out too long prompts
         tokenizer = self.tokenizer
         prompt_key = self.prompt_key

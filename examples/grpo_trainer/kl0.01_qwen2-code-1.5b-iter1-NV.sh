@@ -38,7 +38,7 @@ python3 -m verl.trainer.main_ppo_correct \
     data.val_files=$HOME/data/$DATA_PATH_SUFF/test.parquet \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
-    data.max_prompt_length=3096 \
+    data.max_prompt_length=3072 \
     data.max_response_length=2048 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
@@ -65,7 +65,7 @@ python3 -m verl.trainer.main_ppo_correct \
     trainer.project_name=${PROJECT_NAME} \
     trainer.experiment_name=${EXPERIMENT_NAME} \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
-    trainer.n_gpus_per_node=4 \
+    trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
     trainer.save_freq=25 \
     trainer.test_freq=25 \

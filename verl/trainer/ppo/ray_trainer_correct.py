@@ -485,7 +485,7 @@ class RayPPOTrainer(object):
                                          max_prompt_length=self.config.data.max_prompt_length,
                                          filter_prompts=True,
                                          return_raw_chat=self.config.data.get('return_raw_chat', False),
-                                         truncation='error')
+                                         truncation='left')
         # use sampler for better ckpt resume
         if self.config.data.shuffle:
             train_dataloader_generator = torch.Generator()
@@ -1043,19 +1043,11 @@ class RayPPOTrainer(object):
                             new_prompt = [prompt, {"role":"assistant", "content": response}, {"role":"user","content":new_prompt}]
                             prompt_with_chat_template = self.tokenizer.apply_chat_template(new_prompt, add_generation_prompt=True, tokenize=False)
 
-                            new_prompt_masked = [prompt]
-                            prompt_masked_with_chat_template = self.tokenizer.apply_chat_template(new_prompt_masked, add_generation_prompt=True, tokenize=False)
                             if debug_time:
                                 pprint("*"*10)
                                 pprint(prompt_with_chat_template)
                                 debug_time = False
                             input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
-                                tokenizer=self.tokenizer,
-                                max_length=self.config.data.max_prompt_length,
-                                pad_token_id=self.tokenizer.pad_token_id,
-                                left_pad=True,
-                                truncation='right')
-                            input_ids_masked, attention_mask_masked = verl_F.tokenize_and_postprocess_data(prompt=prompt_masked_with_chat_template,
                                 tokenizer=self.tokenizer,
                                 max_length=self.config.data.max_prompt_length,
                                 pad_token_id=self.tokenizer.pad_token_id,
@@ -1085,16 +1077,17 @@ class RayPPOTrainer(object):
                             prompt_with_chat_template = self.tokenizer.apply_chat_template([prompt, {"role":"assistant", "content": response}], add_generation_prompt=False, tokenize=False)
                             input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
                                 tokenizer=self.tokenizer,
-                                max_length=self.config.data.max_prompt_length,
+                                max_length=self.config.data.max_prompt_length + self.config.data.max_response_length,
                                 pad_token_id=self.tokenizer.pad_token_id,
                                 left_pad=True,
                                 truncation='right')
                             position_ids = compute_position_id_with_mask(attention_mask)
-                            list_batch_masked.append(DataProto.from_dict({"input_ids":input_ids_masked, "attention_mask":attention_mask_masked, "position_ids":position_ids}))
+                            list_batch_masked.append(DataProto.from_dict({"input_ids":input_ids, "attention_mask":attention_mask, "position_ids":position_ids}))
                         batch_correction_masked = DataProto.concat(list_batch_masked)
                         batch_correction_masked.batch['responses'] = batch_correction.batch['responses']
-                        batch_correction_masked.batch['prompt'] = prompt_ids
-
+                        batch_correction_masked.batch['prompts'] = prompt_ids
+                        #batch_correction_masked.meta_info['micro_batch_size'] = batch_correction.meta_info['micro_batch_size']
+                        #batch_correction_masked.meta_info['temperature'] = batch_correction.meta_info['temperature']
                     # compute global_valid tokens
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
                     batch_correction.meta_info['global_token_num'] = torch.sum(batch_correction.batch['attention_mask'], dim=-1).tolist()

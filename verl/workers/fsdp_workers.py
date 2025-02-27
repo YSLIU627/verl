@@ -546,6 +546,7 @@ class ActorRolloutRefWorker(Worker):
         data.meta_info['temperature'] = self.config.rollout.temperature
         data.meta_info['max_token_len'] = self.config.ref.log_prob_max_token_len_per_gpu
         data.meta_info['use_dynamic_bsz'] = self.config.ref.log_prob_use_dynamic_bsz
+        assert  micro_batch_size >= 1
         with self.ulysses_sharding_manager:
             data = self.ulysses_sharding_manager.preprocess_data(data)
             output = self.ref_policy.compute_log_prob(data=data)

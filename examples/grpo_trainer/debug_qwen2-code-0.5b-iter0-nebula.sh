@@ -26,6 +26,7 @@ export HYDRA_FULL_ERROR=1
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo_correct \
+    algorithm.zero_shot_kl=True \
     algorithm.kl_ctrl.kl_coef_correction=${KL_CORRECTION} \
     algorithm.adv_estimator=grpo \
     reward_model.reward_manager=prime \
