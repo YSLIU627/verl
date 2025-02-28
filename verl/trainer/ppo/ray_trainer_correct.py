@@ -1156,9 +1156,10 @@ class RayPPOTrainer(object):
                             batch_correction, kl_metrics = apply_kl_penalty(batch_correction,
                                                                  kl_ctrl=self.kl_ctrl_correction,
                                                                  kl_penalty=self.config.algorithm.kl_penalty)
+                            metrics.update(wrap_correction(kl_metrics))
                         else:
                             batch.batch['token_level_rewards'] = batch.batch['token_level_scores']
-                        metrics.update(wrap_correction(kl_metrics))
+                        
                         # compute advantages, executed on the driver process
                         batch = compute_advantage(batch,
                                                   adv_estimator=self.config.algorithm.adv_estimator,
