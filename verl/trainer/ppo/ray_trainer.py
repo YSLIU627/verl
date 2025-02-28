@@ -119,7 +119,7 @@ def add_optimism_reward(data: DataProto, coef: float, kl_ctrl: core_algos.Adapti
     token_level_rewards = data.batch['token_level_rewards']
     #metrics = {'original_rewards': token_level_rewards.cpu().numpy().mean()}
     if optimism_term == 'optimistic_rewards':
-        data.batch[optimism_term] = coef * core_algos.compute_optimism_reward(token_level_rewards=token_level_rewards,
+        data.batch[optimism_term] = core_algos.compute_optimism_reward(token_level_rewards=token_level_rewards,
                                                                        index=data.non_tensor_batch['uid'],kl_coef=kl_ctrl.value,
                                                                        sqrt=True,optimism_coeff=coef)
     else:
@@ -185,7 +185,7 @@ def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_re
         data.batch['returns'] = returns
     else:
         raise NotImplementedError
-    metric = {'advantages': advantages.cpu().numpy().mean()}
+    metric = {'advantages': advantages.detach().cpu().numpy().mean()}
     return data, metric
 
 

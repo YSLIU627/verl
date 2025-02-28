@@ -114,7 +114,7 @@ def compute_optimism_reward(
 ):
     #id2score = defaultdict(list)
     id2loc = defaultdict(list)
-
+    optimistic_token_level_rewards = token_level_rewards.detach().clone()
     with torch.no_grad():
         bsz = token_level_rewards.shape[0]
         
@@ -130,14 +130,13 @@ def compute_optimism_reward(
                 #sumexp = torch.mean(torch.tensor([torch.exp(( _ - id2mean[idx])/kl_ceof) for _ in id2score[idx]]), dim = 0)
                 variance = torch.var(torch.cat([token_level_rewards[loc].unsqueeze(0) for loc in id2loc[idx]], dim = 0), dim = 0)   
                 for loc in id2loc[idx]:
-                    
-                    token_level_rewards[loc] = optimism_coeff * variance/2.
+                    optimistic_token_level_rewards[loc] = optimism_coeff * variance/2.
                 #id2logsumexp[idx] = torch.mean(torch.tensor(id2score[idx] - id2mean[idx]), dim = 0)
             else:
                 raise ValueError(f"no score in prompt index: {idx}")
         if sqrt:
-            token_level_rewards = torch.sqrt(token_level_rewards)
-        return token_level_rewards
+            optimistic_token_level_rewards = torch.sqrt(optimistic_token_level_rewards)
+        return optimistic_token_level_rewards
 # NOTE(sgm): this implementation only consider outcome supervision, where the reward is a scalar.
 def compute_grpo_outcome_advantage(token_level_rewards: torch.Tensor,
                                    eos_mask: torch.Tensor,
@@ -202,7 +201,11 @@ def compute_reinforce_plus_plus_outcome_advantage(token_level_rewards: torch.Ten
         Returns: `(torch.Tensor)`
             shape: (bs, response_length)
     """
-
+    """
+    
+    0 1 2 3 4 5 6
+    
+    """
     with torch.no_grad():
         returns = torch.zeros_like(token_level_rewards)
         running_return = 0
