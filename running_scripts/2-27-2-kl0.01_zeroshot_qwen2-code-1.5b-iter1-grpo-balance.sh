@@ -6,12 +6,12 @@ TASK_NAME=opencoder
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 #START_IDX=0
 #END_IDX=2000
-KL_CORRECTION=0
+KL_CORRECTION=0.01
 REMOTE_DATA_PATH=ZHLiu627/dataset_qwen2.5_code_1.5b_grpo_iter0_full_data_miao_0212_2_global_step_70filtered_v1
 SAVE_LOCAL_DIR_PREFIX='checkpoints/'
 PROJECT_NAME=CORRECTION-qwen2.5_code_1.5b_grpo
 MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B-Instruct
-EXPERIMENT_NAME=correction_with_kl${KL_CORRECTION}
+EXPERIMENT_NAME=zero_shot_correction_with_kl${KL_CORRECTION}
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
 
 
@@ -29,7 +29,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=84f03efa3815c8727157b1951519ce4b0f2a190a
 python3 -m verl.trainer.main_ppo_correct \
     algorithm.adv_estimator=grpo \
-    algorithm.zero_shot_kl=False \
+    algorithm.zero_shot_kl=True \
     algorithm.kl_ctrl.kl_coef_correction=${KL_CORRECTION} \
     reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/ \
@@ -66,6 +66,6 @@ python3 -m verl.trainer.main_ppo_correct \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
-    trainer.save_freq=25 \
-    trainer.test_freq=25 \
+    trainer.save_freq=5 \
+    trainer.test_freq=5 \
     trainer.total_epochs=1 $@

@@ -9,7 +9,7 @@ TASK_NAME=opencoder
 KL_CORRECTION=0
 REMOTE_DATA_PATH=ZHLiu627/dataset_qwen2.5_code_1.5b_grpo_iter0_full_data_miao_0212_2_global_step_70filtered_v1
 SAVE_LOCAL_DIR_PREFIX='checkpoints/'
-PROJECT_NAME=CORRECTION-qwen2.5_code_1.5b_grpo
+PROJECT_NAME=qwen2.5_code_1.5b_grpo
 MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B-Instruct
 EXPERIMENT_NAME=correction_with_kl${KL_CORRECTION}
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
@@ -66,6 +66,6 @@ python3 -m verl.trainer.main_ppo_correct \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
-    trainer.save_freq=25 \
-    trainer.test_freq=25 \
+    trainer.save_freq=10 \
+    trainer.test_freq=10 \
     trainer.total_epochs=1 $@
