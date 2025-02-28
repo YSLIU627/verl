@@ -115,16 +115,16 @@ def apply_kl_penalty(data: DataProto, kl_ctrl: core_algos.AdaptiveKLController, 
 
     return data, metrics
 
-def add_optimism_reward(data: DataProto, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'rewards'):
+def add_optimism_reward(data: DataProto, coef: float, kl_ctrl: core_algos.AdaptiveKLController, optimism_term: str = 'optimistic_rewards'):
     token_level_rewards = data.batch['token_level_rewards']
     metrics = {'original_rewards': token_level_rewards.cpu().numpy().mean()}
-    if optimism_term == 'advantages':
-        token_level_rewards += coef * core_algos.compute_optimism_reward(token_level_rewards=token_level_rewards,
+    if optimism_term == 'optimistic_rewards':
+        data.batch[optimism_term] = coef * core_algos.compute_optimism_reward(token_level_rewards=token_level_rewards,
                                                                        index=data.non_tensor_batch['uid'],kl_coef=kl_ctrl.value,
                                                                        sqrt=True,optimism_coeff=coef)
     else:
         raise NotImplementedError
-    metrics = metrics.update({"optimistic_coef":coef, "optimistic_rewards": token_level_rewards.cpu().numpy().mean()} )
+    metrics = metrics.update({"optimistic_coef":coef, optimism_term: token_level_rewards.cpu().numpy().mean()} )
     data.batch['token_level_rewards'] = token_level_rewards
     return data, metrics
 
@@ -940,7 +940,7 @@ class RayPPOTrainer(object):
                         
                         if self.config.algorithm.optimistic_actor and self.config.algorithm.optimism_coef > 1e-6: 
                             assert self.config.actor_rollout_ref.rollout.n > 1
-                            batch, optimism_metrics = add_optimism_reward(batch, self.config.algorithm.optimism_coef, self.kl_ctrl,'rewards')
+                            batch, optimism_metrics = add_optimism_reward(batch, self.config.algorithm.optimism_coef, self.kl_ctrl,'optimistic_rewards')
                             batch.meta_info.update({'optimistic_actor': True})
                             metrics.update(optimism_metrics)
                         batch, adv_metrics = compute_advantage(batch,
