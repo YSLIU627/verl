@@ -705,7 +705,8 @@ class RayPPOTrainer(object):
 
             # evaluate using reward_function
             reward_tensor, infos = self.val_reward_fn(test_batch, return_info = True, sequences_str = output_texts)
-
+            #reward_tensor = self.val_reward_fn(test_batch, return_info = False, sequences_str = output_texts)
+            #infos = ["no information" for _ in reward_tensor]
             # Store scores
             scores = reward_tensor.sum(-1).cpu().tolist()
             sample_scores.extend(scores)

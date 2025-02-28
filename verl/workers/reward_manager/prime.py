@@ -20,7 +20,7 @@ import torch
 import os
 from verl import DataProto
 from verl.utils.reward_score import _default_compute_score
-
+from typing import List
 
 async def single_compute_score(evaluation_func, completion, reference, task, executor, timeout=300.):
     loop = asyncio.get_running_loop()
@@ -69,8 +69,13 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
             if isinstance(result, Exception):
                 # Handle failed or timed-out tasks
                 scores.append(0.0)
-                infos.append(Exception)
+                infos.append(repr(result))
+                continue
             try:
+                if isinstance(result, List):
+                    result = result[0]
+                if isinstance(result, List):
+                    result = result[0]
                 score = result[0]
                 info = result[1]
                 if score is None:

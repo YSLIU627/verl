@@ -35,8 +35,8 @@ def _default_compute_score(data_source, solution_str, ground_truth):
         res = opencoder.compute_score(solution_str, ground_truth)
     else:
         raise NotImplementedError
-
-    if isinstance(res, (int, float, bool)):
-        return float(res)
-    else:
-        return float(res[0])
+    return res
+    #if isinstance(res, (int, float, bool)):
+    #    return float(res)
+    #else:
+    #    return float(res[0])
