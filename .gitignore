@@ -13,6 +13,7 @@ wandb/
 tmp_ray/
 # C extensions
 *.so
+extrop/
 local_start.sh
 rollouts/
 # Byte-compiled / optimized / DLL files
