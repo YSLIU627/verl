@@ -19,7 +19,7 @@ MODEL_NAME_BASE=Qwen/Qwen2.5-Math-7B
 MODEL_NAME=Qwen2.5-Math-7B-Instruct-alpha${ALPHA}
 
 SAVE_LOCAL_DIR_PREFIX=checkpoints
-python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE}
+python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 PROJECT_NAME=Exploration-Qwen2.5-Math-7B-Instruct
 EXPERIMENT_NAME=alpha_${ALPHA}
@@ -41,7 +41,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_files=$LOCAL_DATA_PATH/$TASK_NAME/train.parquet \
     data.val_files=$LOCAL_DATA_PATH/$TASK_NAME/test.parquet \
     data.custom_temp_dir=$HOME/tmp/ray \
-    reward_model.reward_manager=prime \
+    reward_model.reward_manager=naive \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
     data.max_prompt_length=256 \

@@ -1,7 +1,7 @@
 set -x
 
 #export CUDA_VISIBLE_DEVICES=6,7,8,9
-export CUDA_VISIBLE_DEVICES=2,3,4,5
+#export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
 TASK_NAME=math_dataset
 
@@ -37,7 +37,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_files=$LOCAL_DATA_PATH/$TASK_NAME/train.parquet \
     data.val_files=$LOCAL_DATA_PATH/$TASK_NAME/test.parquet \
     data.custom_temp_dir=$HOME/tmp/ray \
-    reward_model.reward_manager=prime \
+    reward_model.reward_manager=naive \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
     data.max_prompt_length=256 \

@@ -17,13 +17,13 @@ MODEL_NAME_IT=Qwen/Qwen2.5-Math-7B-Instruct
 MODEL_NAME_BASE=Qwen/Qwen2.5-Math-7B
 MODEL_NAME=Qwen2.5-Math-7B-Instruct-alpha${ALPHA}
 
-SAVE_LOCAL_DIR_PREFIX=checkpoints
-python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE}
+SAVE_LOCAL_DIR_PREFIX=checkpoints/
+python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
 #-alpha0.2
 #Qwen/Qwen2.5-Math-0.5B
-SAVE_LOCAL_DIR_PREFIX=checkpoints
+\
 PROJECT_NAME=Exploration-Qwen2.5-Math-7B-Instruct
 EXPERIMENT_NAME=alpha_${ALPHA}
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
