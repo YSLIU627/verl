@@ -18,11 +18,8 @@ Preprocess the GSM8k dataset to parquet format
 import os
 import datasets
 import argparse
-from utils import copy, makedirs, remove_boxed, last_boxed_only_string
+#from utils import copy, makedirs, remove_boxed, last_boxed_only_string
 
-
-def extract_solution(solution_str):
-    return remove_boxed(last_boxed_only_string(solution_str))
 
 
 def make_format(example):
