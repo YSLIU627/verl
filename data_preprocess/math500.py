@@ -18,8 +18,7 @@ Preprocess the MATH500 dataset to parquet format
 import os
 import datasets
 import argparse
-from utils import copy, makedirs, remove_boxed, last_boxed_only_string
-
+from verl.utils.reward_score.math import remove_boxed, last_boxed_only_string
 
 def extract_solution(solution_str):
     return remove_boxed(last_boxed_only_string(solution_str))
@@ -71,9 +70,6 @@ def main():
     hdfs_dir = args.hdfs_dir
     test_dataset.to_parquet(os.path.join(local_dir, 'test.parquet'))
 
-    if hdfs_dir is not None:
-        makedirs(hdfs_dir)
-        copy(src=local_dir, dst=hdfs_dir)
 
 if __name__ == '__main__':
     main()
