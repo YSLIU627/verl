@@ -12,7 +12,7 @@ TASK_NAME=math_dataset
 optimism_coeff=0
 optimistic_actor=False
 LOCAL_DATA_PATH=data
-MODEL_NAME=Qwen/Qwen2.5-Math-7B
+MODEL_NAME=Qwen/Qwen2.5-Math-7B-Instruct
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
 #-alpha0.2
 #Qwen/Qwen2.5-Math-0.5B
