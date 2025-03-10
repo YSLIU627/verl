@@ -29,7 +29,7 @@ LOCAL_DATA_PATH=data
 MODEL_NAME_IT=PRIME-RL/Eurus-2-7B-SFT
 MODEL_NAME_BASE=PRIME-RL/Eurus-2-7B-PRIME
 MODEL_NAME=Eurus-2-7B-PRIME-alpha${ALPHA}
-SAVE_LOCAL_DIR_PREFIX=checkpoints/
+SAVE_LOCAL_DIR_PREFIX=checkpoints
 python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
@@ -76,7 +76,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
     data.max_prompt_length=1024 \
-    data.max_response_length=3840 \
+    data.max_response_length=3000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
