@@ -29,7 +29,7 @@ LOCAL_DATA_PATH=data
 MODEL_NAME_IT=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
 MODEL_NAME_BASE=Qwen/Qwen2.5-7B
 MODEL_NAME=Open-Reasoner-Zero-7B-alpha${ALPHA}
-SAVE_LOCAL_DIR_PREFIX=checkpoints/
+SAVE_LOCAL_DIR_PREFIX=checkpoints
 python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
