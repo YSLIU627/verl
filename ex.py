@@ -29,10 +29,10 @@ def main():
 
     assert len(sft_model.state_dict()) == len(dpo_model.state_dict())
     total = len(dpo_model.state_dict())
-
-    for name, dpo_model_param in tqdm(dpo_model.named_parameters(), total=total):
-        sft_model_param = sft_model.state_dict()[name]
-        dpo_model_param.data = dpo_model_param.data + args.alpha * (dpo_model_param.data - sft_model_param.data)
+    if args.alpha >1e-6 and args.alpha < -1e-6:
+        for name, dpo_model_param in tqdm(dpo_model.named_parameters(), total=total):
+            sft_model_param = sft_model.state_dict()[name]
+            dpo_model_param.data = dpo_model_param.data + args.alpha * (dpo_model_param.data - sft_model_param.data)
 
     dpo_model.save_pretrained(args.save_path)
     toker = AutoTokenizer.from_pretrained(args.dpo_model_path, trust_remote_code=True)

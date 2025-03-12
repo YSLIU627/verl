@@ -3,8 +3,8 @@ set -x
 #export CUDA_VISIBLE_DEVICES=6,7,8,9
 #export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
-ALPHA=0.1
-TASK_NAMES=("prime" "math500" "math_dataset" "math_r1_500" "aime_24_dataset" "math_r1_dataset")
+ALPHA=0
+TASK_NAMES=("prime" "math500" "math_dataset")
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 sft_loss_coef=0
 REMOTE_DATA_PATH=PRIME-RL/Eurus-2-RL-Data
@@ -55,11 +55,16 @@ for TASK_NAME in "${TASK_NAMES[@]}"; do
     fi
     DATA_PATHS+=("./data/$DATA_PATH_SUFF")
 done
+
+
 echo "Combined tasks: ${TASK_NAMES[@]}"
 python3 data_preprocess/combine_parquet.py --data_dirs ${DATA_PATHS[@]} --output_dir ./data/combined
 python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime --output_dir ./data/combined --split train
 
-
+TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset" "math_r1_dataset")
+for TASK_NAME in "${TASK_NAMES_EVAL[@]}"; do
+    python3 data_preprocess/${TASK_NAME}.py --local_dir ./data/${TASK_NAME}
+done
 export HYDRA_FULL_ERROR=1
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
@@ -69,8 +74,8 @@ python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
-    data.train_files=$LOCAL_DATA_PATH/combined/train.parquet \
-    data.val_files=$LOCAL_DATA_PATH/combined/test.parquet \
+    data.train_files=./data/combined/train.parquet \
+    data.val_files=['./data/combined/test.parquet', './data/math_r1_500/test.parquet', './data/aime_24_dataset/test.parquet', './data/math_r1_dataset/test.parquet'] \
     data.custom_temp_dir=$HOME/tmp/ray \
     reward_model.reward_manager=prime \
     data.train_batch_size=1024 \
