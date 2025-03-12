@@ -75,7 +75,7 @@ python3 -m verl.trainer.main_ppo \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
     data.train_files=./data/combined/train.parquet \
-    data.val_files=['./data/combined/test.parquet', './data/math_r1_500/test.parquet', './data/aime_24_dataset/test.parquet', './data/math_r1_dataset/test.parquet'] \
+    data.val_files=['./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet','./data/math_r1_dataset/test.parquet'] \
     data.custom_temp_dir=$HOME/tmp/ray \
     reward_model.reward_manager=prime \
     data.train_batch_size=1024 \

@@ -29,7 +29,7 @@ def main():
 
     assert len(sft_model.state_dict()) == len(dpo_model.state_dict())
     total = len(dpo_model.state_dict())
-    if args.alpha >1e-6 and args.alpha < -1e-6:
+    if args.alpha >1e-6 or args.alpha < -1e-6:
         for name, dpo_model_param in tqdm(dpo_model.named_parameters(), total=total):
             sft_model_param = sft_model.state_dict()[name]
             dpo_model_param.data = dpo_model_param.data + args.alpha * (dpo_model_param.data - sft_model_param.data)
