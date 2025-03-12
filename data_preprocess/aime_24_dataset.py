@@ -39,7 +39,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--local_dir', default='data/aime_2024')
     parser.add_argument('--hdfs_dir', default=None)
-
+    parser.add_argument("--data_remote_dir",default='HuggingFaceH4/MATH-500', type=str)
     args = parser.parse_args()
 
     data_source = 'AIME24'
