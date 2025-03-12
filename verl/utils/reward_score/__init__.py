@@ -18,19 +18,30 @@ def _default_compute_score(data_source, solution_str, ground_truth, extra_info=N
     if data_source == 'openai/gsm8k':
         from . import gsm8k
         res = gsm8k.compute_score(solution_str, ground_truth)
-    elif data_source in ['lighteval/MATH', 'DigitalLearningGmbH/MATH-lighteval','HuggingFaceH4/MATH-500']:
-        from . import prime_math
-        #math
-        res = prime_math.compute_score(solution_str, ground_truth)
+    elif data_source in ['lighteval/MATH', 'DigitalLearningGmbH/MATH-lighteval', 'math-500']:
+        from . import math
+        res = math.compute_score(solution_str, ground_truth)
     elif data_source in [
             'numina_aops_forum', 'numina_synthetic_math', 'numina_amc_aime', 'numina_synthetic_amc', 'numina_cn_k12',
-            'numina_olympiads'
+            'numina_olympiads',
     ]:
         from . import prime_math
         res = prime_math.compute_score(solution_str, ground_truth)
     elif data_source in ['codecontests', 'apps', 'codeforces', 'taco']:
         from . import prime_code
         res = prime_code.compute_score(solution_str, ground_truth, continuous=True)
+    elif data_source in ["math_500_train", "AIME_train", "RUC-AIBOX/STILL-3-Preview-RL-Data"]:
+        from . import math_r1
+        return math_r1.compute_score(solution_str, ground_truth)
+    elif data_source in ["AIME24", "math-500-r1", "DigitalLearningGmbH/MATH-lighteval-r1"]:
+        from . import math_r1
+        return math_r1.compute_score_val(solution_str, ground_truth)
+    elif "multiply" in data_source or "arithmetic" in data_source:
+        from . import multiply
+        return multiply.compute_score(solution_str, ground_truth)
+    elif "countdown" in data_source:
+        from . import countdown
+        return countdown.compute_score(solution_str, ground_truth)
     else:
         raise NotImplementedError
 

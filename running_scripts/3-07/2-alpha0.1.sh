@@ -17,7 +17,7 @@ ALPHA=0.1
 MODEL_NAME_IT=Qwen/Qwen2.5-Math-7B-Instruct
 MODEL_NAME_BASE=Qwen/Qwen2.5-Math-7B
 MODEL_NAME=Qwen2.5-Math-7B-Instruct-alpha${ALPHA}
-SAVE_LOCAL_DIR_PREFIX=checkpoints/
+SAVE_LOCAL_DIR_PREFIX=checkpoints
 python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct

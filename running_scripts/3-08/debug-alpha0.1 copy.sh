@@ -30,7 +30,7 @@ LOCAL_DATA_PATH=data
 MODEL_NAME_IT=PRIME-RL/Eurus-2-7B-SFT
 MODEL_NAME_BASE=PRIME-RL/Eurus-2-7B-PRIME
 MODEL_NAME=Eurus-2-7B-PRIME-alpha${ALPHA}
-SAVE_LOCAL_DIR_PREFIX=checkpoints/
+SAVE_LOCAL_DIR_PREFIX=checkpoints
 python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
 MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
