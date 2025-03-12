@@ -955,8 +955,10 @@ class RayPPOTrainer(object):
                         batch.meta_info.update({'optimistic_critic': True, 'optimism_coeff':self.config.algorithm.optimism_coef})
                         #metrics.update(optimism_metrics)
                     
-                    
-                    
+                    if self.config.algorithm.expectile:
+                        expectile = float(self.config.algorithm.expectile)
+                        batch.meta_info.update({'expectile': expectile})
+                        metrics.update({'critic/expectile': expectile})
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):

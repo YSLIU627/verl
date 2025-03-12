@@ -145,6 +145,7 @@ class DataParallelPPOCritic(BasePPOCritic):
         self.critic_module.train()
         metrics = {}
         optimism = data.meta_info.get("optimistic_critic", False)
+        expectile = data.meta_info.get('expectile', False)
         optimism_coeff = data.meta_info.get("optimistic_coeff", 0.)
         if optimism:
             index = data.non_tensor_batch['uid']
@@ -188,7 +189,8 @@ class DataParallelPPOCritic(BasePPOCritic):
                                                                      values=values,
                                                                      returns=returns,
                                                                      eos_mask=eos_mask,
-                                                                     cliprange_value=self.config.cliprange_value)
+                                                                     cliprange_value=self.config.cliprange_value,
+                                                                     expectile = expectile)
                 if optimism:
                     vf_loss += core_algos.compute_optimism_loss(
                         token_level_rewards=vpreds,
