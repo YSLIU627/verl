@@ -11,7 +11,7 @@ MODEL_PATH=Qwen/Qwen2.5-Math-7B
 SAVE_LOCAL_DIR_PREFIX=/scratch/m000069/miaolu/checkpoints
 CUSTOM_TEMP_DIR=/projects/m000069/miaolu/tmp/ray
 PROJECT_NAME=Qwen2.5-Math-7B-PPO
-EXPERIMENT_NAME=ppo_math_dataset_expectile_0.1_0314_1
+EXPERIMENT_NAME=ppo_math_dataset_expectile_0.2_0314_2
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
 
 
