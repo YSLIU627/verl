@@ -47,7 +47,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--local_dir', default='data/math_r1_dataset')
     parser.add_argument('--hdfs_dir', default=None)
-
+    parser.add_argument("--data_remote_dir",default='HuggingFaceH4/MATH-500', type=str)
     args = parser.parse_args()
     from pathlib import Path
 
