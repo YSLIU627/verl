@@ -166,6 +166,9 @@ class vLLMRollout(BaseRollout):
             idx_list.append(_pre_process_inputs(self.pad_token_id, idx[i]))
 
         do_sample = prompts.meta_info.get('do_sample', True)
+        n = prompts.meta_info.get('n', -1)
+        if n < 1:
+            n =  self.config.n
         if not do_sample:
             kwargs = {
                 'best_of': 1,
@@ -175,7 +178,8 @@ class vLLMRollout(BaseRollout):
                 'temperature': 0,
                 'n': 1  # if greedy, only 1 response
             }
-
+        else:
+            kwargs = {'n': n} 
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
             output = self.inference_engine.generate(
@@ -193,11 +197,11 @@ class vLLMRollout(BaseRollout):
             response = pad_sequence_to_length(response, self.config.response_length, self.pad_token_id)
             log_probs = pad_sequence_to_length(log_probs, self.config.response_length, self.pad_token_id)
 
-        if self.config.n > 1 and do_sample and not prompts.meta_info.get('single_rollout', False):
-            idx = idx.repeat_interleave(self.config.n, dim=0)
-            attention_mask = attention_mask.repeat_interleave(self.config.n, dim=0)
-            position_ids = position_ids.repeat_interleave(self.config.n, dim=0)
-            batch_size = batch_size * self.config.n
+        if n > 1 and do_sample and not prompts.meta_info.get('single_rollout', False):
+            idx = idx.repeat_interleave(n, dim=0)
+            attention_mask = attention_mask.repeat_interleave(n, dim=0)
+            position_ids = position_ids.repeat_interleave(n, dim=0)
+            batch_size = batch_size * n
         seq = torch.cat([idx, response], dim=-1)
 
         response_length = response.size(1)

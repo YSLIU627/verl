@@ -602,7 +602,7 @@ class RayPPOTrainer(object):
             sample_inputs.extend(input_texts)
 
             test_gen_batch = test_batch.pop(['input_ids', 'attention_mask', 'position_ids'])
-            if self.config.trainer.get("test_sample_n",-1) < 0:
+            if self.config.get("test_sample_n",1) == 1:
                 test_gen_batch.meta_info = {
                     'eos_token_id': self.tokenizer.eos_token_id,
                     'pad_token_id': self.tokenizer.pad_token_id,
@@ -617,7 +617,6 @@ class RayPPOTrainer(object):
                     'recompute_log_prob': False,
                     'do_sample': True,
                     'validate': True,
-                    'n': self.config.trainer.get("test_sample_n",-1)
                 }
             # pad to be divisible by dp_size
             test_gen_batch_padded, pad_size = pad_dataproto_to_divisor(test_gen_batch, self.actor_rollout_wg.world_size)
@@ -630,8 +629,7 @@ class RayPPOTrainer(object):
             output_ids = test_output_gen_batch.batch['responses']
             output_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in output_ids]
             sample_outputs.extend(output_texts)
-            if self.config.trainer.get("test_sample_n",-1) >= 1:
-                test_batch = test_batch.repeat(repeat_times=self.config.trainer.get("test_sample_n",-1), interleave=True)
+
             test_batch = test_batch.union(test_output_gen_batch)
 
             # evaluate using reward_function

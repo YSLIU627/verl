@@ -26,18 +26,18 @@ optimistic_actor=False
 LOCAL_DATA_PATH=data
 
 
-MODEL_NAME_IT=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
-MODEL_NAME_BASE=Qwen/Qwen2.5-7B
-MODEL_NAME=Open-Reasoner-Zero-7B-alpha${ALPHA}
+MODEL_NAME=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
+#MODEL_NAME_BASE=Qwen/Qwen2.5-7B
+#MODEL_NAME=Open-Reasoner-Zero-7B-alpha${ALPHA}
 SAVE_LOCAL_DIR_PREFIX=checkpoints
-python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} --sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
-MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
+#python ex.py --save_path ${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME} --dpo_model_path ${MODEL_NAME_IT} #--sft_model_path ${MODEL_NAME_BASE} --alpha ${ALPHA}
+#MODEL_NAME=${SAVE_LOCAL_DIR_PREFIX}/${MODEL_NAME}
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
 #-alpha0.2
 #Qwen/Qwen2.5-Math-0.5B
 
 PROJECT_NAME=Exploration-Open-Reasoner-Zero-7B
-EXPERIMENT_NAME=alpha_${ALPHA}_think_sample_16
+EXPERIMENT_NAME=alpha_${ALPHA}_think_sample16
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
 
@@ -61,7 +61,7 @@ echo "Combined tasks: ${TASK_NAMES[@]}"
 python3 data_preprocess/combine_parquet.py --data_dirs ${DATA_PATHS[@]} --output_dir ./data/combined
 python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime --output_dir ./data/combined --split train
 
-TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset" "math_r1_dataset")
+TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset")
 for TASK_NAME in "${TASK_NAMES_EVAL[@]}"; do
     python3 data_preprocess/${TASK_NAME}.py --local_dir ./data/${TASK_NAME}
 done
@@ -82,7 +82,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_batch_size=1024 \
     data.val_batch_size=1024 \
     data.max_prompt_length=1024 \
-    data.max_response_length=3000 \
+    data.max_response_length=7000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -94,12 +94,12 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.grad_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=4 \
     actor_rollout_ref.rollout.name=vllm \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.8 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=5 \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
-    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000 \
+    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=6000 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
