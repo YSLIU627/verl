@@ -17,7 +17,7 @@ optimistic_actor=False
 #-alpha0.2
 #Qwen/Qwen2.5-Math-0.5B
 SAVE_LOCAL_DIR_PREFIX=checkpoints
-PROJECT_NAME=Exploration-Open-Open-Reasoner-Zero-7B
+PROJECT_NAME=debug
 EXPERIMENT_NAME=alpha_${ALPHA}_think
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
 
@@ -26,7 +26,7 @@ optimistic_actor=False
 LOCAL_DATA_PATH=data
 
 
-MODEL_NAME=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
+MODEL_NAME=Qwen/Qwen2.5-0.5B-Instruct
 #MODEL_NAME_BASE=Qwen/Qwen2.5-7B
 #MODEL_NAME=Open-Reasoner-Zero-7B-alpha${ALPHA}
 SAVE_LOCAL_DIR_PREFIX=checkpoints
@@ -72,7 +72,7 @@ export WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
 #'./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet','./data/math_r1_dataset/test.parquet'
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    trainer.test_sample_n=2 \
+    trainer.test_sample_n=16 \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
     data.train_files=./data/combined/train.parquet \

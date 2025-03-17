@@ -166,20 +166,21 @@ class vLLMRollout(BaseRollout):
             idx_list.append(_pre_process_inputs(self.pad_token_id, idx[i]))
 
         do_sample = prompts.meta_info.get('do_sample', True)
-        n = prompts.meta_info.get('n', -1)
-        if n < 1:
-            n =  self.config.n
+        n = self.config.n
         if not do_sample:
             kwargs = {
                 'best_of': 1,
+                'logprobs': 0,
                 'top_p': 1.0,
                 'top_k': -1,
                 'min_p': 0.0,
                 'temperature': 0,
                 'n': 1  # if greedy, only 1 response
             }
-        else:
-            kwargs = {'n': n} 
+            n = 1
+        elif prompts.meta_info.get('validate', False):
+            kwargs.update({'logprobs': 0, 'n': 1})
+            n = 1
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
             output = self.inference_engine.generate(
@@ -196,7 +197,7 @@ class vLLMRollout(BaseRollout):
         if response.shape[1] < self.config.response_length:
             response = pad_sequence_to_length(response, self.config.response_length, self.pad_token_id)
             log_probs = pad_sequence_to_length(log_probs, self.config.response_length, self.pad_token_id)
-
+        
         if n > 1 and do_sample and not prompts.meta_info.get('single_rollout', False):
             idx = idx.repeat_interleave(n, dim=0)
             attention_mask = attention_mask.repeat_interleave(n, dim=0)
