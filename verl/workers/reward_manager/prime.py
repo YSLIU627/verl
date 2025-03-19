@@ -43,8 +43,36 @@ def _safe_evaluation(evaluation_func, task, completion, reference, result_list, 
         print(f"Error processing completion at index {idx}: {e}")
         result_list[idx] = 0.0
 
+import multiprocessing
+import warnings
+import time
 
-def parallel_compute_score(evaluation_func, completions, references, tasks, num_processes=32, extra_info=None, timeout=10):
+def parallel_compute_score(evaluation_func, completions, references, tasks, num_processes=8, extra_info=None, timeout=10):
+    manager = multiprocessing.Manager()
+    result_list = manager.list([0.0] * len(completions))
+    semaphore = multiprocessing.Semaphore(num_processes)  # 限制同时运行的进程数
+    processes = []
+
+    def worker_wrapper(idx, completion, reference, task):
+        """包装进程执行函数，保证进程结束后释放信号量"""
+        with semaphore:  # 确保不会创建过多并行进程
+            p = multiprocessing.Process(target=_safe_evaluation, args=(evaluation_func, task, completion, reference, result_list, idx, extra_info))
+            p.start()
+            processes.append((p, idx))
+
+            p.join(timeout=timeout)
+            if p.is_alive():
+                warnings.warn(f"Timeout when processing completion at index {idx}")
+                p.kill()
+                p.join()
+
+    # 创建多个进程
+    for idx, (completion, reference, task) in enumerate(zip(completions, references, tasks)):
+        worker_wrapper(idx, completion, reference, task)
+
+    return list(result_list)
+
+def parallel_compute_score_old(evaluation_func, completions, references, tasks, num_processes=32, extra_info=None, timeout=10):
     manager = multiprocessing.Manager()
     result_list = manager.list([0.0] * len(completions))
     processes = []

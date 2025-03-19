@@ -2432,3 +2432,1152 @@ ray.exceptions.ActorDiedError: The actor died unexpectedly before finishing this
 The actor is dead because its worker process has died. Worker exit type: SYSTEM_ERROR Worker exit detail: Worker exits unexpectedly. Worker exits with an exit code 1. The process receives a SIGTERM.
 [36m(WorkerDict pid=3380370)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.[32m [repeated 7x across cluster][0m
 [36m(WorkerDict pid=3380370)[0m   with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined][32m [repeated 7x across cluster][0m
++ ALPHA=0
++ N_SAMPLE_TIME=8
++ TASK_NAMES=("prime" "math500" "math_dataset")
++ sft_loss_coef=0
++ REMOTE_DATA_PATH=PRIME-RL/Eurus-2-RL-Data
++ optimism_coeff=0
++ optimistic_actor=False
++ SAVE_LOCAL_DIR_PREFIX=checkpoints
++ PROJECT_NAME=Exploration-Open-Open-Reasoner-Zero-7B
++ EXPERIMENT_NAME=alpha_0_think-sample8
++ SAVE_LOCAL_DIR=checkpoints/Exploration-Open-Open-Reasoner-Zero-7B/alpha_0_think-sample8
++ optimism_coeff=0
++ optimistic_actor=False
++ LOCAL_DATA_PATH=data
++ MODEL_NAME_IT=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
++ MODEL_NAME_BASE=Qwen/Qwen2.5-7B
++ MODEL_NAME=Open-Reasoner-Zero-7B-alpha0
++ SAVE_LOCAL_DIR_PREFIX=checkpoints
++ python ex.py --save_path checkpoints/Open-Reasoner-Zero-7B-alpha0 --dpo_model_path Open-Reasoner-Zero/Open-Reasoner-Zero-7B --sft_model_path Qwen/Qwen2.5-7B --alpha 0
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:05<00:16,  5.42s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:10<00:10,  5.20s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:15<00:05,  5.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  4.89s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  5.03s/it]
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:05<00:16,  5.57s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:11<00:11,  5.66s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:16<00:05,  5.46s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:18<00:00,  3.95s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:18<00:00,  4.54s/it]
++ MODEL_NAME=checkpoints/Open-Reasoner-Zero-7B-alpha0
++ PROJECT_NAME=Exploration-Open-Reasoner-Zero-7B
++ EXPERIMENT_NAME=alpha_0_think_sample_8
++ SAVE_LOCAL_DIR=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_8
++ DATA_PATHS=()
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: prime'
+Processing task: prime
++ '[' -z '' ']'
++ DATA_PATH_SUFF=prime
++ python3 data_preprocess/prime.py --local_dir ./data/prime --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the PRIME-RL/Eurus-2-RL-Data dataset from huggingface...
+file existed
+len of training dataset is 455261, 2, 0,999999999
+Creating parquet from Arrow format:   0%|          | 0/456 [00:00<?, ?ba/s]Creating parquet from Arrow format:  11%|█▏        | 52/456 [00:00<00:00, 511.97ba/s]Creating parquet from Arrow format:  23%|██▎       | 106/456 [00:00<00:00, 524.74ba/s]Creating parquet from Arrow format:  37%|███▋      | 170/456 [00:00<00:00, 572.83ba/s]Creating parquet from Arrow format:  52%|█████▏    | 235/456 [00:00<00:00, 601.82ba/s]Creating parquet from Arrow format:  66%|██████▌   | 300/456 [00:00<00:00, 616.26ba/s]Creating parquet from Arrow format:  80%|████████  | 365/456 [00:00<00:00, 624.34ba/s]Creating parquet from Arrow format:  94%|█████████▍| 429/456 [00:00<00:00, 627.79ba/s]Creating parquet from Arrow format: 100%|██████████| 456/456 [00:00<00:00, 607.90ba/s]
+Creating parquet from Arrow format:   0%|          | 0/2 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 2/2 [00:00<00:00, 322.24ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: math500'
+Processing task: math500
++ '[' -z '' ']'
++ DATA_PATH_SUFF=math500
++ python3 data_preprocess/math500.py --local_dir ./data/math500 --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the HuggingFaceH4/MATH-500 dataset from huggingface...
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 459.95ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: math_dataset'
+Processing task: math_dataset
++ '[' -z '' ']'
++ DATA_PATH_SUFF=math_dataset
++ python3 data_preprocess/math_dataset.py --local_dir ./data/math_dataset --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the DigitalLearningGmbH/MATH-lighteval dataset from huggingface...
+Creating parquet from Arrow format:   0%|          | 0/8 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 8/8 [00:00<00:00, 355.75ba/s]
+Creating parquet from Arrow format:   0%|          | 0/5 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 5/5 [00:00<00:00, 407.88ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ echo 'Combined tasks: prime' math500 math_dataset
+Combined tasks: prime math500 math_dataset
++ python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime ./data/math500 ./data/math_dataset --output_dir ./data/combined
+Combining datasets from ['./data/prime', './data/math500', './data/math_dataset'] to ./data/combined
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 1024 examples [00:00, 166021.16 examples/s]
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 500 examples [00:00, 150225.79 examples/s]
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 5000 examples [00:00, 348265.77 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/7 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 7/7 [00:00<00:00, 437.59ba/s]
+Combined dataset saved to ./data/combined
++ python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime --output_dir ./data/combined --split train
+Combining datasets from ['./data/prime'] to ./data/combined
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 43000 examples [00:00, 423051.92 examples/s]Generating train split: 92000 examples [00:00, 455293.67 examples/s]Generating train split: 139000 examples [00:00, 458709.35 examples/s]Generating train split: 187000 examples [00:00, 462976.34 examples/s]Generating train split: 247000 examples [00:00, 426465.40 examples/s]Generating train split: 294000 examples [00:00, 436410.39 examples/s]Generating train split: 344000 examples [00:00, 453638.08 examples/s]Generating train split: 393000 examples [00:00, 461420.53 examples/s]Generating train split: 442000 examples [00:00, 466349.58 examples/s]Generating train split: 455261 examples [00:01, 451810.51 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/456 [00:00<?, ?ba/s]Creating parquet from Arrow format:  10%|█         | 47/456 [00:00<00:00, 465.71ba/s]Creating parquet from Arrow format:  22%|██▏       | 100/456 [00:00<00:00, 502.56ba/s]Creating parquet from Arrow format:  34%|███▍      | 154/456 [00:00<00:00, 515.35ba/s]Creating parquet from Arrow format:  45%|████▌     | 207/456 [00:00<00:00, 520.66ba/s]Creating parquet from Arrow format:  57%|█████▋    | 260/456 [00:00<00:00, 523.96ba/s]Creating parquet from Arrow format:  69%|██████▉   | 314/456 [00:00<00:00, 526.39ba/s]Creating parquet from Arrow format:  80%|████████  | 367/456 [00:00<00:00, 525.46ba/s]Creating parquet from Arrow format:  92%|█████████▏| 420/456 [00:00<00:00, 526.49ba/s]Creating parquet from Arrow format: 100%|██████████| 456/456 [00:00<00:00, 522.19ba/s]
+Combined dataset saved to ./data/combined
++ TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset" "math_r1_dataset")
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/math_r1_500.py --local_dir ./data/math_r1_500
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 171.19ba/s]
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/aime_24_dataset.py --local_dir ./data/aime_24_dataset
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 517.62ba/s]
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/math_r1_dataset.py --local_dir ./data/math_r1_dataset
+file existed
++ export HYDRA_FULL_ERROR=1
++ HYDRA_FULL_ERROR=1
++ export VLLM_ATTENTION_BACKEND=XFORMERS
++ VLLM_ATTENTION_BACKEND=XFORMERS
++ export WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
++ WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
++ python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo trainer.test_sample_n=8 algorithm.optimism_coef=0 algorithm.optimistic_actor=False data.train_files=./data/combined/train.parquet 'data.val_files=[./data/combined/test.parquet,./data/math_r1_500/test.parquet,./data/aime_24_dataset/test.parquet]' data.custom_temp_dir=/wang_ssd/zhihanliu/tmp/ray reward_model.reward_manager=prime data.train_batch_size=1024 data.val_batch_size=256 data.max_prompt_length=1024 data.max_response_length=8000 actor_rollout_ref.model.path=checkpoints/Open-Reasoner-Zero-7B-alpha0 actor_rollout_ref.actor.optim.lr=1e-6 actor_rollout_ref.model.use_remove_padding=True actor_rollout_ref.actor.ppo_mini_batch_size=256 actor_rollout_ref.actor.use_kl_loss=True actor_rollout_ref.actor.kl_loss_coef=0.001 actor_rollout_ref.actor.kl_loss_type=low_var_kl actor_rollout_ref.model.enable_gradient_checkpointing=True actor_rollout_ref.actor.fsdp_config.param_offload=False actor_rollout_ref.actor.fsdp_config.grad_offload=False actor_rollout_ref.actor.fsdp_config.optimizer_offload=False actor_rollout_ref.rollout.tensor_model_parallel_size=8 actor_rollout_ref.rollout.name=vllm actor_rollout_ref.rollout.gpu_memory_utilization=0.8 actor_rollout_ref.rollout.n=5 actor_rollout_ref.actor.use_dynamic_bsz=True actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000 actor_rollout_ref.ref.fsdp_config.param_offload=True algorithm.kl_ctrl.kl_coef=0.001 trainer.critic_warmup=0 'trainer.logger=[console,wandb]' trainer.project_name=Exploration-Open-Reasoner-Zero-7B trainer.experiment_name=alpha_0_think_sample_8 trainer.n_gpus_per_node=8 trainer.nnodes=1 trainer.default_local_dir=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_8 trainer.save_freq=50 trainer.test_freq=50 trainer.total_epochs=1
+2025-03-18 23:25:33,127	INFO worker.py:1841 -- Started a local Ray instance.
+[36m(main_task pid=3476809)[0m {'actor_rollout_ref': {'actor': {'clip_ratio': 0.2,
+[36m(main_task pid=3476809)[0m                                  'entropy_coeff': 0.001,
+[36m(main_task pid=3476809)[0m                                  'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3476809)[0m                                                  'grad_offload': False,
+[36m(main_task pid=3476809)[0m                                                  'optimizer_offload': False,
+[36m(main_task pid=3476809)[0m                                                  'param_offload': False,
+[36m(main_task pid=3476809)[0m                                                  'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3476809)[0m                                  'grad_clip': 1.0,
+[36m(main_task pid=3476809)[0m                                  'kl_loss_coef': 0.001,
+[36m(main_task pid=3476809)[0m                                  'kl_loss_type': 'low_var_kl',
+[36m(main_task pid=3476809)[0m                                  'optim': {'lr': 1e-06,
+[36m(main_task pid=3476809)[0m                                            'lr_warmup_steps_ratio': 0.0,
+[36m(main_task pid=3476809)[0m                                            'min_lr_ratio': None,
+[36m(main_task pid=3476809)[0m                                            'total_training_steps': -1,
+[36m(main_task pid=3476809)[0m                                            'warmup_style': 'constant'},
+[36m(main_task pid=3476809)[0m                                  'ppo_epochs': 1,
+[36m(main_task pid=3476809)[0m                                  'ppo_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3476809)[0m                                  'ppo_micro_batch_size': None,
+[36m(main_task pid=3476809)[0m                                  'ppo_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m                                  'ppo_mini_batch_size': 256,
+[36m(main_task pid=3476809)[0m                                  'shuffle': False,
+[36m(main_task pid=3476809)[0m                                  'strategy': 'fsdp',
+[36m(main_task pid=3476809)[0m                                  'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3476809)[0m                                  'use_dynamic_bsz': True,
+[36m(main_task pid=3476809)[0m                                  'use_kl_loss': True},
+[36m(main_task pid=3476809)[0m                        'hybrid_engine': True,
+[36m(main_task pid=3476809)[0m                        'model': {'enable_gradient_checkpointing': True,
+[36m(main_task pid=3476809)[0m                                  'external_lib': None,
+[36m(main_task pid=3476809)[0m                                  'override_config': {},
+[36m(main_task pid=3476809)[0m                                  'path': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3476809)[0m                                  'use_remove_padding': True},
+[36m(main_task pid=3476809)[0m                        'ref': {'fsdp_config': {'param_offload': True,
+[36m(main_task pid=3476809)[0m                                                'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3476809)[0m                                'log_prob_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3476809)[0m                                'log_prob_micro_batch_size': None,
+[36m(main_task pid=3476809)[0m                                'log_prob_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m                                'log_prob_use_dynamic_bsz': True,
+[36m(main_task pid=3476809)[0m                                'ulysses_sequence_parallel_size': 1},
+[36m(main_task pid=3476809)[0m                        'rollout': {'disable_log_stats': True,
+[36m(main_task pid=3476809)[0m                                    'do_sample': True,
+[36m(main_task pid=3476809)[0m                                    'dtype': 'bfloat16',
+[36m(main_task pid=3476809)[0m                                    'enable_chunked_prefill': True,
+[36m(main_task pid=3476809)[0m                                    'enforce_eager': True,
+[36m(main_task pid=3476809)[0m                                    'free_cache_engine': True,
+[36m(main_task pid=3476809)[0m                                    'gpu_memory_utilization': 0.8,
+[36m(main_task pid=3476809)[0m                                    'ignore_eos': False,
+[36m(main_task pid=3476809)[0m                                    'load_format': 'dummy_dtensor',
+[36m(main_task pid=3476809)[0m                                    'log_prob_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3476809)[0m                                    'log_prob_micro_batch_size': None,
+[36m(main_task pid=3476809)[0m                                    'log_prob_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m                                    'log_prob_use_dynamic_bsz': True,
+[36m(main_task pid=3476809)[0m                                    'max_num_batched_tokens': 8192,
+[36m(main_task pid=3476809)[0m                                    'max_num_seqs': 1024,
+[36m(main_task pid=3476809)[0m                                    'n': 5,
+[36m(main_task pid=3476809)[0m                                    'name': 'vllm',
+[36m(main_task pid=3476809)[0m                                    'prompt_length': 1024,
+[36m(main_task pid=3476809)[0m                                    'response_length': 8000,
+[36m(main_task pid=3476809)[0m                                    'temperature': 1.0,
+[36m(main_task pid=3476809)[0m                                    'tensor_model_parallel_size': 8,
+[36m(main_task pid=3476809)[0m                                    'top_k': -1,
+[36m(main_task pid=3476809)[0m                                    'top_p': 1}},
+[36m(main_task pid=3476809)[0m  'algorithm': {'adv_estimator': 'grpo',
+[36m(main_task pid=3476809)[0m                'expectile': False,
+[36m(main_task pid=3476809)[0m                'gamma': 1.0,
+[36m(main_task pid=3476809)[0m                'kl_ctrl': {'kl_coef': 0.001,
+[36m(main_task pid=3476809)[0m                            'kl_coef_correction': 0.01,
+[36m(main_task pid=3476809)[0m                            'type': 'fixed'},
+[36m(main_task pid=3476809)[0m                'kl_penalty': 'kl',
+[36m(main_task pid=3476809)[0m                'lam': 1.0,
+[36m(main_task pid=3476809)[0m                'optimism_coef': 0,
+[36m(main_task pid=3476809)[0m                'optimistic_actor': False,
+[36m(main_task pid=3476809)[0m                'optimistic_critic': False},
+[36m(main_task pid=3476809)[0m  'critic': {'cliprange_value': 0.5,
+[36m(main_task pid=3476809)[0m             'forward_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3476809)[0m             'forward_micro_batch_size': None,
+[36m(main_task pid=3476809)[0m             'forward_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m             'grad_clip': 1.0,
+[36m(main_task pid=3476809)[0m             'model': {'enable_gradient_checkpointing': True,
+[36m(main_task pid=3476809)[0m                       'external_lib': None,
+[36m(main_task pid=3476809)[0m                       'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3476809)[0m                                       'grad_offload': False,
+[36m(main_task pid=3476809)[0m                                       'optimizer_offload': False,
+[36m(main_task pid=3476809)[0m                                       'param_offload': False,
+[36m(main_task pid=3476809)[0m                                       'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3476809)[0m                       'override_config': {},
+[36m(main_task pid=3476809)[0m                       'path': '~/models/deepseek-llm-7b-chat',
+[36m(main_task pid=3476809)[0m                       'tokenizer_path': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3476809)[0m                       'use_remove_padding': False},
+[36m(main_task pid=3476809)[0m             'optim': {'lr': 1e-05,
+[36m(main_task pid=3476809)[0m                       'lr_warmup_steps_ratio': 0.0,[36m(main_task pid=3476809)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(main_task pid=3476809)[0m No module named 'vllm._version'
+[36m(main_task pid=3476809)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(pid=3479962)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(pid=3479962)[0m No module named 'vllm._version'
+[36m(pid=3479962)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(pid=3480199)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(pid=3480199)[0m No module named 'vllm._version'
+[36m(pid=3480199)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(WorkerDict pid=3480199)[0m You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+[36m(WorkerDict pid=3480199)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]
+[36m(WorkerDict pid=3480199)[0m Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:00,  4.91it/s]
+[36m(WorkerDict pid=3480199)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.68it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.70it/s]
+
+[36m(main_task pid=3476809)[0m                       'min_lr_ratio': None,
+[36m(main_task pid=3476809)[0m                       'total_training_steps': -1,
+[36m(main_task pid=3476809)[0m                       'warmup_style': 'constant'},
+[36m(main_task pid=3476809)[0m             'ppo_epochs': 1,
+[36m(main_task pid=3476809)[0m             'ppo_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3476809)[0m             'ppo_micro_batch_size': None,
+[36m(main_task pid=3476809)[0m             'ppo_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m             'ppo_mini_batch_size': 256,
+[36m(main_task pid=3476809)[0m             'shuffle': False,
+[36m(main_task pid=3476809)[0m             'strategy': 'fsdp',
+[36m(main_task pid=3476809)[0m             'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3476809)[0m             'use_dynamic_bsz': True},
+[36m(main_task pid=3476809)[0m  'data': {'custom_temp_dir': '/wang_ssd/zhihanliu/tmp/ray',
+[36m(main_task pid=3476809)[0m           'max_prompt_length': 1024,
+[36m(main_task pid=3476809)[0m           'max_response_length': 8000,
+[36m(main_task pid=3476809)[0m           'prompt_key': 'prompt',
+[36m(main_task pid=3476809)[0m           'return_raw_chat': False,
+[36m(main_task pid=3476809)[0m           'return_raw_input_ids': False,
+[36m(main_task pid=3476809)[0m           'save_ppo_rollouts_path': '',
+[36m(main_task pid=3476809)[0m           'shuffle': True,
+[36m(main_task pid=3476809)[0m           'tokenizer': None,
+[36m(main_task pid=3476809)[0m           'train_batch_size': 1024,
+[36m(main_task pid=3476809)[0m           'train_files': './data/combined/train.parquet',
+[36m(main_task pid=3476809)[0m           'val_batch_size': 256,
+[36m(main_task pid=3476809)[0m           'val_files': ['./data/combined/test.parquet',
+[36m(main_task pid=3476809)[0m                         './data/math_r1_500/test.parquet',
+[36m(main_task pid=3476809)[0m                         './data/aime_24_dataset/test.parquet']},
+[36m(main_task pid=3476809)[0m  'reward_model': {'enable': False,
+[36m(main_task pid=3476809)[0m                   'forward_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3476809)[0m                   'max_length': None,
+[36m(main_task pid=3476809)[0m                   'micro_batch_size': None,
+[36m(main_task pid=3476809)[0m                   'micro_batch_size_per_gpu': None,
+[36m(main_task pid=3476809)[0m                   'model': {'external_lib': None,
+[36m(main_task pid=3476809)[0m                             'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3476809)[0m                                             'min_num_params': 0,
+[36m(main_task pid=3476809)[0m                                             'param_offload': False},
+[36m(main_task pid=3476809)[0m                             'input_tokenizer': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3476809)[0m                             'path': '~/models/FsfairX-LLaMA3-RM-v0.1',
+[36m(main_task pid=3476809)[0m                             'use_remove_padding': False},
+[36m(main_task pid=3476809)[0m                   'reward_manager': 'prime',
+[36m(main_task pid=3476809)[0m                   'strategy': 'fsdp',
+[36m(main_task pid=3476809)[0m                   'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3476809)[0m                   'use_dynamic_bsz': True},
+[36m(main_task pid=3476809)[0m  'trainer': {'critic_warmup': 0,
+[36m(main_task pid=3476809)[0m              'default_hdfs_dir': None,
+[36m(main_task pid=3476809)[0m              'default_local_dir': 'checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_8',
+[36m(main_task pid=3476809)[0m              'del_local_ckpt_after_load': False,
+[36m(main_task pid=3476809)[0m              'experiment_name': 'alpha_0_think_sample_8',
+[36m(main_task pid=3476809)[0m              'logger': ['console', 'wandb'],
+[36m(main_task pid=3476809)[0m              'n_gpus_per_node': 8,
+[36m(main_task pid=3476809)[0m              'nnodes': 1,
+[36m(main_task pid=3476809)[0m              'project_name': 'Exploration-Open-Reasoner-Zero-7B',
+[36m(main_task pid=3476809)[0m              'remove_previous_ckpt_in_save': False,
+[36m(main_task pid=3476809)[0m              'resume_from_path': False,
+[36m(main_task pid=3476809)[0m              'resume_mode': 'auto',
+[36m(main_task pid=3476809)[0m              'save_freq': 50,
+[36m(main_task pid=3476809)[0m              'test_freq': 50,
+[36m(main_task pid=3476809)[0m              'test_sample_n': 8,
+[36m(main_task pid=3476809)[0m              'total_epochs': 1,
+[36m(main_task pid=3476809)[0m              'total_training_steps': None,
+[36m(main_task pid=3476809)[0m              'val_generations_to_log_to_wandb': 0}}
+[36m(main_task pid=3476809)[0m [validate_config] All configuration checks passed successfully!
+[36m(main_task pid=3476809)[0m original dataset len: 455261
+[36m(main_task pid=3476809)[0m filter dataset len: 455075
+[36m(main_task pid=3476809)[0m original dataset len: 7054
+[36m(main_task pid=3476809)[0m filter dataset len: 7048
+[36m(main_task pid=3476809)[0m Size of train dataloader: 444
+[36m(main_task pid=3476809)[0m Size of val dataloader: 1
+[36m(main_task pid=3476809)[0m Total training steps: 444
+[36m(WorkerDict pid=3479962)[0m Model config after override: Qwen2Config {
+[36m(WorkerDict pid=3479962)[0m   "_name_or_path": "checkpoints/Open-Reasoner-Zero-7B-alpha0",
+[36m(WorkerDict pid=3479962)[0m   "architectures": [
+[36m(WorkerDict pid=3479962)[0m     "Qwen2ForCausalLM"
+[36m(WorkerDict pid=3479962)[0m   ],
+[36m(WorkerDict pid=3479962)[0m   "attention_dropout": 0.0,
+[36m(WorkerDict pid=3479962)[0m   "eos_token_id": 151643,
+[36m(WorkerDict pid=3479962)[0m   "hidden_act": "silu",
+[36m(WorkerDict pid=3479962)[0m   "hidden_size": 3584,
+[36m(WorkerDict pid=3479962)[0m   "initializer_range": 0.02,
+[36m(WorkerDict pid=3479962)[0m   "intermediate_size": 18944,
+[36m(WorkerDict pid=3479962)[0m   "max_position_embeddings": 131072,
+[36m(WorkerDict pid=3479962)[0m   "max_window_layers": 28,
+[36m(WorkerDict pid=3479962)[0m   "model_type": "qwen2",
+[36m(WorkerDict pid=3479962)[0m   "num_attention_heads": 28,
+[36m(WorkerDict pid=3479962)[0m   "num_hidden_layers": 28,
+[36m(WorkerDict pid=3479962)[0m   "num_key_value_heads": 4,
+[36m(WorkerDict pid=3479962)[0m   "pad_token_id": 151643,
+[36m(WorkerDict pid=3479962)[0m   "rms_norm_eps": 1e-06,
+[36m(WorkerDict pid=3479962)[0m   "rope_scaling": null,
+[36m(WorkerDict pid=3479962)[0m   "rope_theta": 1000000.0,
+[36m(WorkerDict pid=3479962)[0m   "sliding_window": null,
+[36m(WorkerDict pid=3479962)[0m   "tie_word_embeddings": false,
+[36m(WorkerDict pid=3479962)[0m   "torch_dtype": "bfloat16",
+[36m(WorkerDict pid=3479962)[0m   "transformers_version": "4.47.1",
+[36m(WorkerDict pid=3479962)[0m   "use_cache": false,
+[36m(WorkerDict pid=3479962)[0m   "use_mrope": false,
+[36m(WorkerDict pid=3479962)[0m   "use_sliding_window": false,
+[36m(WorkerDict pid=3479962)[0m   "vocab_size": 152064
+[36m(WorkerDict pid=3479962)[0m }
+[36m(WorkerDict pid=3479962)[0m 
+[36m(WorkerDict pid=3479962)[0m NCCL version 2.20.5+cuda12.4
+[36m(WorkerDict pid=3479962)[0m Qwen2ForCausalLM contains 7.62B parameters
+[36m(WorkerDict pid=3479962)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f5038bd3ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f5038bd3d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3479962)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3480205)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f4b3cef7ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f4b3cef7d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])[32m [repeated 7x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m[36m(WorkerDict pid=3479962)[0m Flash Attention 2.0 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen2ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `torch_dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", torch_dtype=torch.float16)`
+[36m(pid=3480203)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:[32m [repeated 6x across cluster][0m
+[36m(pid=3480203)[0m No module named 'vllm._version'[32m [repeated 6x across cluster][0m
+[36m(pid=3480203)[0m   from vllm.version import __version__ as VLLM_VERSION[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3479962)[0m You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3480203)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3480201)[0m Loading checkpoint shards:  75%|███████▌  | 3/4 [00:00<00:00,  4.68it/s][32m [repeated 23x across cluster][0m
+[36m(WorkerDict pid=3480205)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.54it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.52it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3480201)[0m Flash Attention 2.0 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen2ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `torch_dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", torch_dtype=torch.float16)`[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3480203)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s][32m [repeated 8x across cluster][0m
+[36m(WorkerDict pid=3479962)[0m Loading checkpoint shards:  50%|█████     | 2/4 [00:09<00:09,  4.94s/it][32m [repeated 23x across cluster][0m
+[36m(WorkerDict pid=3480201)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.15it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.08it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3479962)[0m Loading checkpoint shards:  75%|███████▌  | 3/4 [00:14<00:04,  4.90s/it]
+[36m(WorkerDict pid=3479962)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:15<00:00,  3.45s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:15<00:00,  3.98s/it]
+
+[36m(WorkerDict pid=3479962)[0m Model config after override: Qwen2Config {
+[36m(WorkerDict pid=3479962)[0m   "_name_or_path": "checkpoints/Open-Reasoner-Zero-7B-alpha0",
+[36m(WorkerDict pid=3479962)[0m   "architectures": [
+[36m(WorkerDict pid=3479962)[0m     "Qwen2ForCausalLM"
+[36m(WorkerDict pid=3479962)[0m   ],
+[36m(WorkerDict pid=3479962)[0m   "attention_dropout": 0.0,
+[36m(WorkerDict pid=3479962)[0m   "eos_token_id": 151643,
+[36m(WorkerDict pid=3479962)[0m   "hidden_act": "silu",
+[36m(WorkerDict pid=3479962)[0m   "hidden_size": 3584,
+[36m(WorkerDict pid=3479962)[0m   "initializer_range": 0.02,
+[36m(WorkerDict pid=3479962)[0m   "intermediate_size": 18944,
+[36m(WorkerDict pid=3479962)[0m   "max_position_embeddings": 131072,
+[36m(WorkerDict pid=3479962)[0m   "max_window_layers": 28,
+[36m(WorkerDict pid=3479962)[0m   "model_type": "qwen2",
+[36m(WorkerDict pid=3479962)[0m   "num_attention_heads": 28,
+[36m(WorkerDict pid=3479962)[0m   "num_hidden_layers": 28,
+[36m(WorkerDict pid=3479962)[0m   "num_key_value_heads": 4,
+[36m(WorkerDict pid=3479962)[0m   "pad_token_id": 151643,
+[36m(WorkerDict pid=3479962)[0m   "rms_norm_eps": 1e-06,
+[36m(WorkerDict pid=3479962)[0m   "rope_scaling": null,
+[36m(WorkerDict pid=3479962)[0m   "rope_theta": 1000000.0,
+[36m(WorkerDict pid=3479962)[0m   "sliding_window": null,
+[36m(WorkerDict pid=3479962)[0m   "tie_word_embeddings": false,
+[36m(WorkerDict pid=3479962)[0m   "torch_dtype": "bfloat16",
+[36m(WorkerDict pid=3479962)[0m   "transformers_version": "4.47.1",
+[36m(WorkerDict pid=3479962)[0m   "use_cache": false,
+[36m(WorkerDict pid=3479962)[0m   "use_mrope": false,
+[36m(WorkerDict pid=3479962)[0m   "use_sliding_window": false,
+[36m(WorkerDict pid=3479962)[0m   "vocab_size": 152064
+[36m(WorkerDict pid=3479962)[0m }
+[36m(WorkerDict pid=3479962)[0m 
+[36m(WorkerDict pid=3479962)[0m Qwen2ForCausalLM contains 7.62B parameters
+[36m(WorkerDict pid=3480205)[0m Actor use_remove_padding=True[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3479962)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f5038bd3ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f5038bd3d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3480201)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f45f4d07ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f45f4d07d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3480201)[0m Total steps: 444, num_warmup_steps: 0
+[36m(WorkerDict pid=3480201)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3480205)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f4b3cef7ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f4b3cef7d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3480204)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3479962)[0m Before building vllm rollout, memory allocated (GB): 3.570098400115967, memory reserved (GB): 17.36328125
+[36m(WorkerDict pid=3480202)[0m INFO 03-18 23:30:50 config.py:887] Defaulting to use ray for distributed inference
+[36m(WorkerDict pid=3480202)[0m INFO 03-18 23:30:50 config.py:1005] Chunked prefill is enabled with max_num_batched_tokens=8192.
+[36m(WorkerDict pid=3480202)[0m WARNING 03-18 23:30:50 config.py:380] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', 'trainer.test_sample_n=8', 'algorithm.optimism_coef=0', 'algorithm.optimistic_actor=False', 'data.train_files=./data/combined/train.parquet', 'data.val_files=[./data/combined/test.parquet,./data/math_r1_500/test.parquet,./data/aime_24_dataset/test.parquet]', 'data.custom_temp_dir=/wang_ssd/zhihanliu/tmp/ray', 'reward_model.reward_manager=prime', 'data.train_batch_size=1024', 'data.val_batch_size=256', 'data.max_prompt_length=1024', 'data.max_response_length=8000', 'actor_rollout_ref.model.path=checkpoints/Open-Reasoner-Zero-7B-alpha0', 'actor_rollout_ref.actor.optim.lr=1e-6', 'actor_rollout_ref.model.use_remove_padding=True', 'actor_rollout_ref.actor.ppo_mini_batch_size=256', 'actor_rollout_ref.actor.use_kl_loss=True', 'actor_rollout_ref.actor.kl_loss_coef=0.001', 'actor_rollout_ref.actor.kl_loss_type=low_var_kl', 'actor_rollout_ref.model.enable_gradient_checkpointing=True', 'actor_rollout_ref.actor.fsdp_config.param_offload=False', 'actor_rollout_ref.actor.fsdp_config.grad_offload=False', 'actor_rollout_ref.actor.fsdp_config.optimizer_offload=False', 'actor_rollout_ref.rollout.tensor_model_parallel_size=8', 'actor_rollout_ref.rollout.name=vllm', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.8', 'actor_rollout_ref.rollout.n=5', 'actor_rollout_ref.actor.use_dynamic_bsz=True', 'actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000', 'actor_rollout_ref.ref.fsdp_config.param_offload=True', 'algorithm.kl_ctrl.kl_coef=0.001', 'trainer.critic_warmup=0', 'trainer.logger=[console,wandb]', 'trainer.project_name=Exploration-Open-Reasoner-Zero-7B', 'trainer.experiment_name=alpha_0_think_sample_8', 'trainer.n_gpus_per_node=8', 'trainer.nnodes=1', 'trainer.default_local_dir=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_8', 'trainer.save_freq=50', 'trainer.test_freq=50', 'trainer.total_epochs=1']
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 240, in <module>
+    main()
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 223, in run_and_report
+    raise ex
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+            ^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 132, in run
+    _ = ret.return_value
+        ^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 128, in main
+    run_ppo(config)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 142, in run_ppo
+    ray.get(main_task.remote(config, compute_score))
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/client_mode_hook.py", line 103, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 2772, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 919, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ValueError): [36mray::main_task()[39m (pid=3476809, ip=10.14.38.55)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 235, in main_task
+    trainer.init_workers()
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/ppo/ray_trainer.py", line 731, in init_workers
+    self.actor_rollout_wg.init_model()
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 42, in func
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.RayTaskError(ValueError): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480202, ip=10.14.38.55, actor_id=df976aae320480b75f50f1e101000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7ef8566c7790>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+    return getattr(self.worker_dict[key], name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+    self.rollout, self.rollout_sharding_manager = self._build_rollout()
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+    rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+    self.inference_engine = LLM(
+                            ^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+    self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+    engine_config = engine_args.create_engine_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+    engine_config = super().create_engine_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+    return EngineConfig(
+           ^^^^^^^^^^^^^
+  File "<string>", line 14, in __init__
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+    self.model_config.verify_with_parallel_config(self.parallel_config)
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+    raise ValueError(
+ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480199, ip=10.14.38.55, actor_id=2d9e80bcdcdc57b495158b4701000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f6b8a8caf10>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480205, ip=10.14.38.55, actor_id=6956e608c36b0aa5dbb0905301000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f4b0138fb50>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480204, ip=10.14.38.55, actor_id=4ffef2b955541f87289e9e6c01000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7fa626235550>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480201, ip=10.14.38.55, actor_id=26fbf5ed72ae4872f0c4ae5c01000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f45b91e3390>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480200, ip=10.14.38.55, actor_id=7bb052e0aa20deb572b9080c01000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7fb84ba13bd0>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(main_task pid=3476809)[0m Unhandled error (suppress with 'RAY_IGNORE_UNHANDLED_ERRORS=1'): [36mray::WorkerDict.actor_rollout_init_model()[39m (pid=3480203, ip=10.14.38.55, actor_id=6c12007dd1ebe9594919ed8b01000000, repr=<verl.single_controller.ray.base.WorkerDict object at 0x7f92547e78d0>)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 399, in func
+[36m(main_task pid=3476809)[0m     return getattr(self.worker_dict[key], name)(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/base/decorator.py", line 404, in inner
+[36m(main_task pid=3476809)[0m     return func(*args, **kwargs)
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 382, in init_model
+[36m(main_task pid=3476809)[0m     self.rollout, self.rollout_sharding_manager = self._build_rollout()
+[36m(main_task pid=3476809)[0m                                                   ^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/fsdp_workers.py", line 308, in _build_rollout
+[36m(main_task pid=3476809)[0m     rollout = vLLMRollout(actor_module=self.actor_module_fsdp,
+[36m(main_task pid=3476809)[0m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/workers/rollout/vllm_rollout/vllm_rollout.py", line 92, in __init__
+[36m(main_task pid=3476809)[0m     self.inference_engine = LLM(
+[36m(main_task pid=3476809)[0m                             ^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm.py", line 142, in __init__
+[36m(main_task pid=3476809)[0m     self.llm_engine = LLMEngine.from_engine_args(model, tokenizer, engine_args)  # TODO: check usagecontext
+[36m(main_task pid=3476809)[0m                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/llm_engine_sp.py", line 382, in from_engine_args
+[36m(main_task pid=3476809)[0m     engine_config = engine_args.create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/wang_ssd/zhihanliu/zhihan/verl/verl/third_party/vllm/vllm_v_0_6_3/arg_utils.py", line 71, in create_engine_config
+[36m(main_task pid=3476809)[0m     engine_config = super().create_engine_config()
+[36m(main_task pid=3476809)[0m                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/engine/arg_utils.py", line 1088, in create_engine_config
+[36m(main_task pid=3476809)[0m     return EngineConfig(
+[36m(main_task pid=3476809)[0m            ^^^^^^^^^^^^^
+[36m(main_task pid=3476809)[0m   File "<string>", line 14, in __init__
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 1889, in __post_init__
+[36m(main_task pid=3476809)[0m     self.model_config.verify_with_parallel_config(self.parallel_config)
+[36m(main_task pid=3476809)[0m   File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/config.py", line 407, in verify_with_parallel_config
+[36m(main_task pid=3476809)[0m     raise ValueError(
+[36m(main_task pid=3476809)[0m ValueError: Total number of attention heads (28) must be divisible by tensor parallel size (8).
+[36m(WorkerDict pid=3479962)[0m Total steps: 444, num_warmup_steps: 0[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3479962)[0m Actor use_remove_padding=True[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3480200)[0m INFO 03-18 23:30:50 config.py:887] Defaulting to use ray for distributed inference[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3480200)[0m INFO 03-18 23:30:50 config.py:1005] Chunked prefill is enabled with max_num_batched_tokens=8192.[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3480200)[0m WARNING 03-18 23:30:50 config.py:380] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used[32m [repeated 6x across cluster][0m
++ ALPHA=0
++ N_SAMPLE_TIME=4
++ TASK_NAMES=("prime" "math500" "math_dataset")
++ sft_loss_coef=0
++ REMOTE_DATA_PATH=PRIME-RL/Eurus-2-RL-Data
++ optimism_coeff=0
++ optimistic_actor=False
++ SAVE_LOCAL_DIR_PREFIX=checkpoints
++ PROJECT_NAME=Exploration-Open-Open-Reasoner-Zero-7B
++ EXPERIMENT_NAME=alpha_0_think-sample4
++ SAVE_LOCAL_DIR=checkpoints/Exploration-Open-Open-Reasoner-Zero-7B/alpha_0_think-sample4
++ optimism_coeff=0
++ optimistic_actor=False
++ LOCAL_DATA_PATH=data
++ MODEL_NAME_IT=Open-Reasoner-Zero/Open-Reasoner-Zero-7B
++ MODEL_NAME_BASE=Qwen/Qwen2.5-7B
++ MODEL_NAME=Open-Reasoner-Zero-7B-alpha0
++ SAVE_LOCAL_DIR_PREFIX=checkpoints
++ python ex.py --save_path checkpoints/Open-Reasoner-Zero-7B-alpha0 --dpo_model_path Open-Reasoner-Zero/Open-Reasoner-Zero-7B --sft_model_path Qwen/Qwen2.5-7B --alpha 0
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:05<00:16,  5.49s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:10<00:10,  5.29s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:15<00:05,  5.30s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:17<00:00,  3.79s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:17<00:00,  4.35s/it]
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.48s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.50s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.44s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.02s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.19s/it]
++ MODEL_NAME=checkpoints/Open-Reasoner-Zero-7B-alpha0
++ PROJECT_NAME=Exploration-Open-Reasoner-Zero-7B
++ EXPERIMENT_NAME=alpha_0_think_sample_4
++ SAVE_LOCAL_DIR=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_4
++ DATA_PATHS=()
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: prime'
+Processing task: prime
++ '[' -z '' ']'
++ DATA_PATH_SUFF=prime
++ python3 data_preprocess/prime.py --local_dir ./data/prime --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the PRIME-RL/Eurus-2-RL-Data dataset from huggingface...
+file existed
+len of training dataset is 455261, 2, 0,999999999
+Creating parquet from Arrow format:   0%|          | 0/456 [00:00<?, ?ba/s]Creating parquet from Arrow format:  11%|█         | 50/456 [00:00<00:00, 491.92ba/s]Creating parquet from Arrow format:  22%|██▏       | 101/456 [00:00<00:00, 499.62ba/s]Creating parquet from Arrow format:  34%|███▎      | 153/456 [00:00<00:00, 508.84ba/s]Creating parquet from Arrow format:  45%|████▌     | 206/456 [00:00<00:00, 515.03ba/s]Creating parquet from Arrow format:  57%|█████▋    | 260/456 [00:00<00:00, 521.21ba/s]Creating parquet from Arrow format:  69%|██████▉   | 314/456 [00:00<00:00, 525.44ba/s]Creating parquet from Arrow format:  82%|████████▏ | 372/456 [00:00<00:00, 542.62ba/s]Creating parquet from Arrow format:  96%|█████████▌| 437/456 [00:00<00:00, 575.06ba/s]Creating parquet from Arrow format: 100%|██████████| 456/456 [00:00<00:00, 545.32ba/s]
+Creating parquet from Arrow format:   0%|          | 0/2 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 2/2 [00:00<00:00, 679.68ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: math500'
+Processing task: math500
++ '[' -z '' ']'
++ DATA_PATH_SUFF=math500
++ python3 data_preprocess/math500.py --local_dir ./data/math500 --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the HuggingFaceH4/MATH-500 dataset from huggingface...
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 207.54ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ for TASK_NAME in "${TASK_NAMES[@]}"
++ echo 'Processing task: math_dataset'
+Processing task: math_dataset
++ '[' -z '' ']'
++ DATA_PATH_SUFF=math_dataset
++ python3 data_preprocess/math_dataset.py --local_dir ./data/math_dataset --data_remote_dir PRIME-RL/Eurus-2-RL-Data
+Loading the DigitalLearningGmbH/MATH-lighteval dataset from huggingface...
+Creating parquet from Arrow format:   0%|          | 0/8 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 8/8 [00:00<00:00, 547.69ba/s]
+Creating parquet from Arrow format:   0%|          | 0/5 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 5/5 [00:00<00:00, 621.30ba/s]
++ DATA_PATHS+=("./data/$DATA_PATH_SUFF")
++ echo 'Combined tasks: prime' math500 math_dataset
+Combined tasks: prime math500 math_dataset
++ python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime ./data/math500 ./data/math_dataset --output_dir ./data/combined
+Combining datasets from ['./data/prime', './data/math500', './data/math_dataset'] to ./data/combined
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 1024 examples [00:00, 183529.92 examples/s]
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 500 examples [00:00, 186066.19 examples/s]
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 5000 examples [00:00, 347181.86 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/7 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 7/7 [00:00<00:00, 589.11ba/s]
+Combined dataset saved to ./data/combined
++ python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime --output_dir ./data/combined --split train
+Combining datasets from ['./data/prime'] to ./data/combined
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 38000 examples [00:00, 374791.72 examples/s]Generating train split: 83000 examples [00:00, 414509.95 examples/s]Generating train split: 130000 examples [00:00, 437347.83 examples/s]Generating train split: 177000 examples [00:00, 445446.11 examples/s]Generating train split: 223000 examples [00:00, 444919.12 examples/s]Generating train split: 276000 examples [00:00, 402805.44 examples/s]Generating train split: 322000 examples [00:00, 414563.80 examples/s]Generating train split: 368000 examples [00:00, 425463.74 examples/s]Generating train split: 414000 examples [00:00, 432521.74 examples/s]Generating train split: 455261 examples [00:01, 425743.79 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/456 [00:00<?, ?ba/s]Creating parquet from Arrow format:  10%|█         | 47/456 [00:00<00:00, 468.04ba/s]Creating parquet from Arrow format:  22%|██▏       | 99/456 [00:00<00:00, 497.32ba/s]Creating parquet from Arrow format:  33%|███▎      | 151/456 [00:00<00:00, 506.13ba/s]Creating parquet from Arrow format:  45%|████▍     | 203/456 [00:00<00:00, 510.32ba/s]Creating parquet from Arrow format:  56%|█████▌    | 255/456 [00:00<00:00, 513.46ba/s]Creating parquet from Arrow format:  67%|██████▋   | 307/456 [00:00<00:00, 515.64ba/s]Creating parquet from Arrow format:  79%|███████▊  | 359/456 [00:00<00:00, 514.79ba/s]Creating parquet from Arrow format:  90%|█████████ | 411/456 [00:00<00:00, 515.98ba/s]Creating parquet from Arrow format: 100%|██████████| 456/456 [00:00<00:00, 512.75ba/s]
+Combined dataset saved to ./data/combined
++ TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset" "math_r1_dataset")
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/math_r1_500.py --local_dir ./data/math_r1_500
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 187.43ba/s]
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/aime_24_dataset.py --local_dir ./data/aime_24_dataset
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 276.80ba/s]
++ for TASK_NAME in "${TASK_NAMES_EVAL[@]}"
++ python3 data_preprocess/math_r1_dataset.py --local_dir ./data/math_r1_dataset
+file existed
++ export HYDRA_FULL_ERROR=1
++ HYDRA_FULL_ERROR=1
++ export VLLM_ATTENTION_BACKEND=XFORMERS
++ VLLM_ATTENTION_BACKEND=XFORMERS
++ export WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
++ WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
++ python3 -m verl.trainer.main_ppo algorithm.adv_estimator=grpo trainer.test_sample_n=4 algorithm.optimism_coef=0 algorithm.optimistic_actor=False data.train_files=./data/combined/train.parquet 'data.val_files=[./data/combined/test.parquet,./data/math_r1_500/test.parquet,./data/aime_24_dataset/test.parquet]' data.custom_temp_dir=/wang_ssd/zhihanliu/tmp/ray reward_model.reward_manager=prime data.train_batch_size=1024 data.val_batch_size=256 data.max_prompt_length=1024 data.max_response_length=8000 actor_rollout_ref.model.path=checkpoints/Open-Reasoner-Zero-7B-alpha0 actor_rollout_ref.actor.optim.lr=1e-6 actor_rollout_ref.model.use_remove_padding=True actor_rollout_ref.actor.ppo_mini_batch_size=256 actor_rollout_ref.actor.use_kl_loss=True actor_rollout_ref.actor.kl_loss_coef=0.001 actor_rollout_ref.actor.kl_loss_type=low_var_kl actor_rollout_ref.model.enable_gradient_checkpointing=True actor_rollout_ref.actor.fsdp_config.param_offload=False actor_rollout_ref.actor.fsdp_config.grad_offload=False actor_rollout_ref.actor.fsdp_config.optimizer_offload=False actor_rollout_ref.rollout.tensor_model_parallel_size=4 actor_rollout_ref.rollout.name=vllm actor_rollout_ref.rollout.gpu_memory_utilization=0.6 actor_rollout_ref.rollout.n=5 actor_rollout_ref.actor.use_dynamic_bsz=True actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000 actor_rollout_ref.ref.fsdp_config.param_offload=False algorithm.kl_ctrl.kl_coef=0.001 trainer.critic_warmup=0 'trainer.logger=[console,wandb]' trainer.project_name=Exploration-Open-Reasoner-Zero-7B trainer.experiment_name=alpha_0_think_sample_4 trainer.n_gpus_per_node=8 trainer.nnodes=1 trainer.default_local_dir=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_4 trainer.save_freq=50 trainer.test_freq=50 trainer.total_epochs=1
+2025-03-19 00:10:31,371	INFO worker.py:1841 -- Started a local Ray instance.
+[36m(main_task pid=3512839)[0m {'actor_rollout_ref': {'actor': {'clip_ratio': 0.2,
+[36m(main_task pid=3512839)[0m                                  'entropy_coeff': 0.001,
+[36m(main_task pid=3512839)[0m                                  'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3512839)[0m                                                  'grad_offload': False,
+[36m(main_task pid=3512839)[0m                                                  'optimizer_offload': False,
+[36m(main_task pid=3512839)[0m                                                  'param_offload': False,
+[36m(main_task pid=3512839)[0m                                                  'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3512839)[0m                                  'grad_clip': 1.0,
+[36m(main_task pid=3512839)[0m                                  'kl_loss_coef': 0.001,
+[36m(main_task pid=3512839)[0m                                  'kl_loss_type': 'low_var_kl',
+[36m(main_task pid=3512839)[0m                                  'optim': {'lr': 1e-06,
+[36m(main_task pid=3512839)[0m                                            'lr_warmup_steps_ratio': 0.0,
+[36m(main_task pid=3512839)[0m                                            'min_lr_ratio': None,
+[36m(main_task pid=3512839)[0m                                            'total_training_steps': -1,
+[36m(main_task pid=3512839)[0m                                            'warmup_style': 'constant'},
+[36m(main_task pid=3512839)[0m                                  'ppo_epochs': 1,
+[36m(main_task pid=3512839)[0m                                  'ppo_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3512839)[0m                                  'ppo_micro_batch_size': None,
+[36m(main_task pid=3512839)[0m                                  'ppo_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m                                  'ppo_mini_batch_size': 256,
+[36m(main_task pid=3512839)[0m                                  'shuffle': False,
+[36m(main_task pid=3512839)[0m                                  'strategy': 'fsdp',
+[36m(main_task pid=3512839)[0m                                  'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3512839)[0m                                  'use_dynamic_bsz': True,
+[36m(main_task pid=3512839)[0m                                  'use_kl_loss': True},
+[36m(main_task pid=3512839)[0m                        'hybrid_engine': True,
+[36m(main_task pid=3512839)[0m                        'model': {'enable_gradient_checkpointing': True,
+[36m(main_task pid=3512839)[0m                                  'external_lib': None,
+[36m(main_task pid=3512839)[0m                                  'override_config': {},
+[36m(main_task pid=3512839)[0m                                  'path': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3512839)[0m                                  'use_remove_padding': True},
+[36m(main_task pid=3512839)[0m                        'ref': {'fsdp_config': {'param_offload': False,
+[36m(main_task pid=3512839)[0m                                                'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3512839)[0m                                'log_prob_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3512839)[0m                                'log_prob_micro_batch_size': None,
+[36m(main_task pid=3512839)[0m                                'log_prob_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m                                'log_prob_use_dynamic_bsz': True,
+[36m(main_task pid=3512839)[0m                                'ulysses_sequence_parallel_size': 1},
+[36m(main_task pid=3512839)[0m                        'rollout': {'disable_log_stats': True,
+[36m(main_task pid=3512839)[0m                                    'do_sample': True,
+[36m(main_task pid=3512839)[0m                                    'dtype': 'bfloat16',
+[36m(main_task pid=3512839)[0m                                    'enable_chunked_prefill': True,
+[36m(main_task pid=3512839)[0m                                    'enforce_eager': True,
+[36m(main_task pid=3512839)[0m                                    'free_cache_engine': True,
+[36m(main_task pid=3512839)[0m                                    'gpu_memory_utilization': 0.6,
+[36m(main_task pid=3512839)[0m                                    'ignore_eos': False,
+[36m(main_task pid=3512839)[0m                                    'load_format': 'dummy_dtensor',
+[36m(main_task pid=3512839)[0m                                    'log_prob_max_token_len_per_gpu': 24000,
+[36m(main_task pid=3512839)[0m                                    'log_prob_micro_batch_size': None,
+[36m(main_task pid=3512839)[0m                                    'log_prob_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m                                    'log_prob_use_dynamic_bsz': True,
+[36m(main_task pid=3512839)[0m                                    'max_num_batched_tokens': 8192,
+[36m(main_task pid=3512839)[0m                                    'max_num_seqs': 1024,
+[36m(main_task pid=3512839)[0m                                    'n': 5,
+[36m(main_task pid=3512839)[0m                                    'name': 'vllm',
+[36m(main_task pid=3512839)[0m                                    'prompt_length': 1024,
+[36m(main_task pid=3512839)[0m                                    'response_length': 8000,
+[36m(main_task pid=3512839)[0m                                    'temperature': 1.0,
+[36m(main_task pid=3512839)[0m                                    'tensor_model_parallel_size': 4,
+[36m(main_task pid=3512839)[0m                                    'top_k': -1,
+[36m(main_task pid=3512839)[0m                                    'top_p': 1}},
+[36m(main_task pid=3512839)[0m  'algorithm': {'adv_estimator': 'grpo',
+[36m(main_task pid=3512839)[0m                'expectile': False,
+[36m(main_task pid=3512839)[0m                'gamma': 1.0,
+[36m(main_task pid=3512839)[0m                'kl_ctrl': {'kl_coef': 0.001,
+[36m(main_task pid=3512839)[0m                            'kl_coef_correction': 0.01,
+[36m(main_task pid=3512839)[0m                            'type': 'fixed'},
+[36m(main_task pid=3512839)[0m                'kl_penalty': 'kl',
+[36m(main_task pid=3512839)[0m                'lam': 1.0,
+[36m(main_task pid=3512839)[0m                'optimism_coef': 0,
+[36m(main_task pid=3512839)[0m                'optimistic_actor': False,
+[36m(main_task pid=3512839)[0m                'optimistic_critic': False},
+[36m(main_task pid=3512839)[0m  'critic': {'cliprange_value': 0.5,
+[36m(main_task pid=3512839)[0m             'forward_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3512839)[0m             'forward_micro_batch_size': None,
+[36m(main_task pid=3512839)[0m             'forward_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m             'grad_clip': 1.0,
+[36m(main_task pid=3512839)[0m             'model': {'enable_gradient_checkpointing': True,
+[36m(main_task pid=3512839)[0m                       'external_lib': None,
+[36m(main_task pid=3512839)[0m                       'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3512839)[0m                                       'grad_offload': False,
+[36m(main_task pid=3512839)[0m                                       'optimizer_offload': False,
+[36m(main_task pid=3512839)[0m                                       'param_offload': False,
+[36m(main_task pid=3512839)[0m                                       'wrap_policy': {'min_num_params': 0}},
+[36m(main_task pid=3512839)[0m                       'override_config': {},
+[36m(main_task pid=3512839)[0m                       'path': '~/models/deepseek-llm-7b-chat',
+[36m(main_task pid=3512839)[0m                       'tokenizer_path': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3512839)[0m                       'use_remove_padding': False},
+[36m(main_task pid=3512839)[0m             'optim': {'lr': 1e-05,
+[36m(main_task pid=3512839)[0m                       'lr_warmup_steps_ratio': 0.0,[36m(main_task pid=3512839)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(main_task pid=3512839)[0m No module named 'vllm._version'
+[36m(main_task pid=3512839)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(pid=3516003)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(pid=3516003)[0m No module named 'vllm._version'
+[36m(pid=3516003)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(pid=3516247)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+[36m(pid=3516247)[0m No module named 'vllm._version'
+[36m(pid=3516247)[0m   from vllm.version import __version__ as VLLM_VERSION
+[36m(WorkerDict pid=3516247)[0m You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+[36m(WorkerDict pid=3516247)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]
+[36m(WorkerDict pid=3516247)[0m Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:00,  6.03it/s]
+[36m(WorkerDict pid=3516247)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  5.96it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  5.98it/s]
+
+[36m(main_task pid=3512839)[0m                       'min_lr_ratio': None,
+[36m(main_task pid=3512839)[0m                       'total_training_steps': -1,
+[36m(main_task pid=3512839)[0m                       'warmup_style': 'constant'},
+[36m(main_task pid=3512839)[0m             'ppo_epochs': 1,
+[36m(main_task pid=3512839)[0m             'ppo_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3512839)[0m             'ppo_micro_batch_size': None,
+[36m(main_task pid=3512839)[0m             'ppo_micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m             'ppo_mini_batch_size': 256,
+[36m(main_task pid=3512839)[0m             'shuffle': False,
+[36m(main_task pid=3512839)[0m             'strategy': 'fsdp',
+[36m(main_task pid=3512839)[0m             'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3512839)[0m             'use_dynamic_bsz': True},
+[36m(main_task pid=3512839)[0m  'data': {'custom_temp_dir': '/wang_ssd/zhihanliu/tmp/ray',
+[36m(main_task pid=3512839)[0m           'max_prompt_length': 1024,
+[36m(main_task pid=3512839)[0m           'max_response_length': 8000,
+[36m(main_task pid=3512839)[0m           'prompt_key': 'prompt',
+[36m(main_task pid=3512839)[0m           'return_raw_chat': False,
+[36m(main_task pid=3512839)[0m           'return_raw_input_ids': False,
+[36m(main_task pid=3512839)[0m           'save_ppo_rollouts_path': '',
+[36m(main_task pid=3512839)[0m           'shuffle': True,
+[36m(main_task pid=3512839)[0m           'tokenizer': None,
+[36m(main_task pid=3512839)[0m           'train_batch_size': 1024,
+[36m(main_task pid=3512839)[0m           'train_files': './data/combined/train.parquet',
+[36m(main_task pid=3512839)[0m           'val_batch_size': 256,
+[36m(main_task pid=3512839)[0m           'val_files': ['./data/combined/test.parquet',
+[36m(main_task pid=3512839)[0m                         './data/math_r1_500/test.parquet',
+[36m(main_task pid=3512839)[0m                         './data/aime_24_dataset/test.parquet']},
+[36m(main_task pid=3512839)[0m  'reward_model': {'enable': False,
+[36m(main_task pid=3512839)[0m                   'forward_max_token_len_per_gpu': 32768,
+[36m(main_task pid=3512839)[0m                   'max_length': None,
+[36m(main_task pid=3512839)[0m                   'micro_batch_size': None,
+[36m(main_task pid=3512839)[0m                   'micro_batch_size_per_gpu': None,
+[36m(main_task pid=3512839)[0m                   'model': {'external_lib': None,
+[36m(main_task pid=3512839)[0m                             'fsdp_config': {'fsdp_size': -1,
+[36m(main_task pid=3512839)[0m                                             'min_num_params': 0,
+[36m(main_task pid=3512839)[0m                                             'param_offload': False},
+[36m(main_task pid=3512839)[0m                             'input_tokenizer': 'checkpoints/Open-Reasoner-Zero-7B-alpha0',
+[36m(main_task pid=3512839)[0m                             'path': '~/models/FsfairX-LLaMA3-RM-v0.1',
+[36m(main_task pid=3512839)[0m                             'use_remove_padding': False},
+[36m(main_task pid=3512839)[0m                   'reward_manager': 'prime',
+[36m(main_task pid=3512839)[0m                   'strategy': 'fsdp',
+[36m(main_task pid=3512839)[0m                   'ulysses_sequence_parallel_size': 1,
+[36m(main_task pid=3512839)[0m                   'use_dynamic_bsz': True},
+[36m(main_task pid=3512839)[0m  'trainer': {'critic_warmup': 0,
+[36m(main_task pid=3512839)[0m              'default_hdfs_dir': None,
+[36m(main_task pid=3512839)[0m              'default_local_dir': 'checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_4',
+[36m(main_task pid=3512839)[0m              'del_local_ckpt_after_load': False,
+[36m(main_task pid=3512839)[0m              'experiment_name': 'alpha_0_think_sample_4',
+[36m(main_task pid=3512839)[0m              'logger': ['console', 'wandb'],
+[36m(main_task pid=3512839)[0m              'n_gpus_per_node': 8,
+[36m(main_task pid=3512839)[0m              'nnodes': 1,
+[36m(main_task pid=3512839)[0m              'project_name': 'Exploration-Open-Reasoner-Zero-7B',
+[36m(main_task pid=3512839)[0m              'remove_previous_ckpt_in_save': False,
+[36m(main_task pid=3512839)[0m              'resume_from_path': False,
+[36m(main_task pid=3512839)[0m              'resume_mode': 'auto',
+[36m(main_task pid=3512839)[0m              'save_freq': 50,
+[36m(main_task pid=3512839)[0m              'test_freq': 50,
+[36m(main_task pid=3512839)[0m              'test_sample_n': 4,
+[36m(main_task pid=3512839)[0m              'total_epochs': 1,
+[36m(main_task pid=3512839)[0m              'total_training_steps': None,
+[36m(main_task pid=3512839)[0m              'val_generations_to_log_to_wandb': 0}}
+[36m(main_task pid=3512839)[0m [validate_config] All configuration checks passed successfully!
+[36m(main_task pid=3512839)[0m original dataset len: 455261
+[36m(main_task pid=3512839)[0m filter dataset len: 455075
+[36m(main_task pid=3512839)[0m original dataset len: 7054
+[36m(main_task pid=3512839)[0m filter dataset len: 7048
+[36m(main_task pid=3512839)[0m Size of train dataloader: 444
+[36m(main_task pid=3512839)[0m Size of val dataloader: 1
+[36m(main_task pid=3512839)[0m Total training steps: 444
+[36m(WorkerDict pid=3516003)[0m Model config after override: Qwen2Config {
+[36m(WorkerDict pid=3516003)[0m   "_name_or_path": "checkpoints/Open-Reasoner-Zero-7B-alpha0",
+[36m(WorkerDict pid=3516003)[0m   "architectures": [
+[36m(WorkerDict pid=3516003)[0m     "Qwen2ForCausalLM"
+[36m(WorkerDict pid=3516003)[0m   ],
+[36m(WorkerDict pid=3516003)[0m   "attention_dropout": 0.0,
+[36m(WorkerDict pid=3516003)[0m   "eos_token_id": 151643,
+[36m(WorkerDict pid=3516003)[0m   "hidden_act": "silu",
+[36m(WorkerDict pid=3516003)[0m   "hidden_size": 3584,
+[36m(WorkerDict pid=3516003)[0m   "initializer_range": 0.02,
+[36m(WorkerDict pid=3516003)[0m   "intermediate_size": 18944,
+[36m(WorkerDict pid=3516003)[0m   "max_position_embeddings": 131072,
+[36m(WorkerDict pid=3516003)[0m   "max_window_layers": 28,
+[36m(WorkerDict pid=3516003)[0m   "model_type": "qwen2",
+[36m(WorkerDict pid=3516003)[0m   "num_attention_heads": 28,
+[36m(WorkerDict pid=3516003)[0m   "num_hidden_layers": 28,
+[36m(WorkerDict pid=3516003)[0m   "num_key_value_heads": 4,
+[36m(WorkerDict pid=3516003)[0m   "pad_token_id": 151643,
+[36m(WorkerDict pid=3516003)[0m   "rms_norm_eps": 1e-06,
+[36m(WorkerDict pid=3516003)[0m   "rope_scaling": null,
+[36m(WorkerDict pid=3516003)[0m   "rope_theta": 1000000.0,
+[36m(WorkerDict pid=3516003)[0m   "sliding_window": null,
+[36m(WorkerDict pid=3516003)[0m   "tie_word_embeddings": false,
+[36m(WorkerDict pid=3516003)[0m   "torch_dtype": "bfloat16",
+[36m(WorkerDict pid=3516003)[0m   "transformers_version": "4.47.1",
+[36m(WorkerDict pid=3516003)[0m   "use_cache": false,
+[36m(WorkerDict pid=3516003)[0m   "use_mrope": false,
+[36m(WorkerDict pid=3516003)[0m   "use_sliding_window": false,
+[36m(WorkerDict pid=3516003)[0m   "vocab_size": 152064
+[36m(WorkerDict pid=3516003)[0m }
+[36m(WorkerDict pid=3516003)[0m 
+[36m(WorkerDict pid=3516003)[0m NCCL version 2.20.5+cuda12.4
+[36m(WorkerDict pid=3516003)[0m Qwen2ForCausalLM contains 7.62B parameters
+[36m(WorkerDict pid=3516003)[0m wrap_policy: functools.partial(<function _or_policy at 0x7fccd15f3ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7fccd15f3d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3516003)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3516242)[0m wrap_policy: functools.partial(<function _or_policy at 0x7fae04e23ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7fae04e23d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])[32m [repeated 7x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m[36m(WorkerDict pid=3516250)[0m Flash Attention 2.0 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen2ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `torch_dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", torch_dtype=torch.float16)`
+[36m(pid=3516251)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:[32m [repeated 6x across cluster][0m
+[36m(pid=3516251)[0m No module named 'vllm._version'[32m [repeated 6x across cluster][0m
+[36m(pid=3516251)[0m   from vllm.version import __version__ as VLLM_VERSION[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3516251)[0m You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards:  75%|███████▌  | 3/4 [00:00<00:00,  5.51it/s][32m [repeated 23x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  5.96it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  5.72it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516242)[0m Flash Attention 2.0 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen2ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `torch_dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", torch_dtype=torch.float16)`[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516242)[0m Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s][32m [repeated 8x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards:  50%|█████     | 2/4 [00:09<00:09,  4.57s/it][32m [repeated 23x across cluster][0m
+[36m(WorkerDict pid=3516250)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.36it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00,  4.29it/s][32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards:  75%|███████▌  | 3/4 [00:13<00:04,  4.52s/it]
+[36m(WorkerDict pid=3516003)[0m Loading checkpoint shards: 100%|██████████| 4/4 [00:15<00:00,  3.27s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:15<00:00,  3.76s/it]
+[36m(WorkerDict pid=3516247)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/xformers/ops/fmha/flash.py:211: FutureWarning: `torch.library.impl_abstract` was renamed to `torch.library.register_fake`. Please use that instead; we will remove `torch.library.impl_abstract` in a future version of PyTorch.
+[36m(WorkerDict pid=3516247)[0m   @torch.library.impl_abstract("xformers_flash::flash_fwd")
+[36m(WorkerDict pid=3516249)[0m   @torch.library.impl_abstract("xformers_flash::flash_bwd")
+[36m(WorkerDict pid=3516003)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/torch/distributed/fsdp/fully_sharded_data_parallel.py:689: FutureWarning: FSDP.state_dict_type() and FSDP.set_state_dict_type() are being deprecated. Please use APIs, get_state_dict() and set_state_dict(), which can support different parallelisms, FSDP1, FSDP2, DDP. API doc: https://pytorch.org/docs/stable/distributed.checkpoint.html#torch.distributed.checkpoint.state_dict.get_state_dict .Tutorial: https://pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html .
+[36m(WorkerDict pid=3516003)[0m   warnings.warn(
+[36m(WorkerDict pid=3516003)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/xformers/ops/fmha/flash.py:344: FutureWarning: `torch.library.impl_abstract` was renamed to `torch.library.register_fake`. Please use that instead; we will remove `torch.library.impl_abstract` in a future version of PyTorch.[32m [repeated 15x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m   @torch.library.impl_abstract("xformers_flash::flash_fwd")[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m   @torch.library.impl_abstract("xformers_flash::flash_bwd")[32m [repeated 7x across cluster][0m
+[36m(main_task pid=3512839)[0m wandb: Currently logged in as: miaolu (northwestern_university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+[36m(main_task pid=3512839)[0m wandb: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
+[36m(main_task pid=3512839)[0m wandb: Tracking run with wandb version 0.19.5
+[36m(main_task pid=3512839)[0m wandb: Run data is saved locally in /wang_ssd/zhihanliu/zhihan/verl/wandb/run-20250319_001604-zf9ays53
+[36m(main_task pid=3512839)[0m wandb: Run `wandb offline` to turn off syncing.
+[36m(main_task pid=3512839)[0m wandb: Syncing run alpha_0_think_sample_4
+[36m(main_task pid=3512839)[0m wandb: ⭐️ View project at https://wandb.ai/northwestern_university/Exploration-Open-Reasoner-Zero-7B
+[36m(main_task pid=3512839)[0m wandb: 🚀 View run at https://wandb.ai/northwestern_university/Exploration-Open-Reasoner-Zero-7B/runs/zf9ays53
+[36m(WorkerDict pid=3516003)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+[36m(WorkerDict pid=3516003)[0m   warnings.warn('resource_tracker: There appear to be %d '
+[36m(WorkerDict pid=3516250)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/torch/distributed/fsdp/fully_sharded_data_parallel.py:689: FutureWarning: FSDP.state_dict_type() and FSDP.set_state_dict_type() are being deprecated. Please use APIs, get_state_dict() and set_state_dict(), which can support different parallelisms, FSDP1, FSDP2, DDP. API doc: https://pytorch.org/docs/stable/distributed.checkpoint.html#torch.distributed.checkpoint.state_dict.get_state_dict .Tutorial: https://pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html .[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516250)[0m   warnings.warn([32m [repeated 7x across cluster][0m
+[33m(raylet)[0m [2025-03-19 00:54:20,521 E 3508199 3508199] node_manager.cc:3180: 1 Workers (tasks / actors) killed due to memory pressure (OOM), 0 Workers crashed due to other reasons at node (ID: 55a7570d89bd1de029616750df7dddca6679b0a7b90014bab0e69a97, IP: 10.14.38.55) over the last time period. To see more information about the Workers killed on this node, use `ray logs raylet.out -ip 10.14.38.55`
+[33m(raylet)[0m 
+[33m(raylet)[0m Refer to the documentation on how to address the out of memory issue: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html. Consider provisioning more memory on this node or reducing task parallelism by requesting more CPUs per task. To adjust the kill threshold, set the environment variable `RAY_memory_usage_threshold` when starting Ray. To disable worker killing, set the environment variable `RAY_memory_monitor_refresh_ms` to zero.
+
+[36m(WorkerDict pid=3516003)[0m Model config after override: Qwen2Config {
+[36m(WorkerDict pid=3516003)[0m   "_name_or_path": "checkpoints/Open-Reasoner-Zero-7B-alpha0",
+[36m(WorkerDict pid=3516003)[0m   "architectures": [
+[36m(WorkerDict pid=3516003)[0m     "Qwen2ForCausalLM"
+[36m(WorkerDict pid=3516003)[0m   ],
+[36m(WorkerDict pid=3516003)[0m   "attention_dropout": 0.0,
+[36m(WorkerDict pid=3516003)[0m   "eos_token_id": 151643,
+[36m(WorkerDict pid=3516003)[0m   "hidden_act": "silu",
+[36m(WorkerDict pid=3516003)[0m   "hidden_size": 3584,
+[36m(WorkerDict pid=3516003)[0m   "initializer_range": 0.02,
+[36m(WorkerDict pid=3516003)[0m   "intermediate_size": 18944,
+[36m(WorkerDict pid=3516003)[0m   "max_position_embeddings": 131072,
+[36m(WorkerDict pid=3516003)[0m   "max_window_layers": 28,
+[36m(WorkerDict pid=3516003)[0m   "model_type": "qwen2",
+[36m(WorkerDict pid=3516003)[0m   "num_attention_heads": 28,
+[36m(WorkerDict pid=3516003)[0m   "num_hidden_layers": 28,
+[36m(WorkerDict pid=3516003)[0m   "num_key_value_heads": 4,
+[36m(WorkerDict pid=3516003)[0m   "pad_token_id": 151643,
+[36m(WorkerDict pid=3516003)[0m   "rms_norm_eps": 1e-06,
+[36m(WorkerDict pid=3516003)[0m   "rope_scaling": null,
+[36m(WorkerDict pid=3516003)[0m   "rope_theta": 1000000.0,
+[36m(WorkerDict pid=3516003)[0m   "sliding_window": null,
+[36m(WorkerDict pid=3516003)[0m   "tie_word_embeddings": false,
+[36m(WorkerDict pid=3516003)[0m   "torch_dtype": "bfloat16",
+[36m(WorkerDict pid=3516003)[0m   "transformers_version": "4.47.1",
+[36m(WorkerDict pid=3516003)[0m   "use_cache": false,
+[36m(WorkerDict pid=3516003)[0m   "use_mrope": false,
+[36m(WorkerDict pid=3516003)[0m   "use_sliding_window": false,
+[36m(WorkerDict pid=3516003)[0m   "vocab_size": 152064
+[36m(WorkerDict pid=3516003)[0m }
+[36m(WorkerDict pid=3516003)[0m 
+[36m(WorkerDict pid=3516003)[0m Qwen2ForCausalLM contains 7.62B parameters
+[36m(WorkerDict pid=3516242)[0m Actor use_remove_padding=True[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m wrap_policy: functools.partial(<function _or_policy at 0x7fccd15f3ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7fccd15f3d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3516248)[0m wrap_policy: functools.partial(<function _or_policy at 0x7f9ad20cfec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7f9ad20cfd80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])
+[36m(WorkerDict pid=3516248)[0m Total steps: 444, num_warmup_steps: 0
+[36m(WorkerDict pid=3516248)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3516242)[0m wrap_policy: functools.partial(<function _or_policy at 0x7fae04e23ec0>, policies=[functools.partial(<function transformer_auto_wrap_policy at 0x7fae04e23d80>, transformer_layer_cls={<class 'transformers.models.qwen2.modeling_qwen2.Qwen2DecoderLayer'>})])[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3516243)[0m Actor use_remove_padding=True
+[36m(WorkerDict pid=3516003)[0m Before building vllm rollout, memory allocated (GB): 3.570098400115967, memory reserved (GB): 17.36328125
+[36m(WorkerDict pid=3516247)[0m INFO 03-19 00:15:50 config.py:887] Defaulting to use ray for distributed inference
+[36m(WorkerDict pid=3516247)[0m INFO 03-19 00:15:50 config.py:1005] Chunked prefill is enabled with max_num_batched_tokens=8192.
+[36m(WorkerDict pid=3516247)[0m WARNING 03-19 00:15:50 config.py:380] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
+[36m(WorkerDict pid=3516247)[0m local rank 0
+[36m(WorkerDict pid=3516247)[0m INFO 03-19 00:15:51 selector.py:115] Using XFormers backend.
+[36m(WorkerDict pid=3516003)[0m Total steps: 444, num_warmup_steps: 0[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m Actor use_remove_padding=True[32m [repeated 6x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m INFO 03-19 00:15:52 utils.py:1008] Found nccl from library libnccl.so.2
+[36m(WorkerDict pid=3516003)[0m INFO 03-19 00:15:52 pynccl.py:63] vLLM is using nccl==2.20.5
+[36m(WorkerDict pid=3516248)[0m NCCL version 2.20.5+cuda12.4
+[36m(WorkerDict pid=3516003)[0m INFO 03-19 00:15:52 shm_broadcast.py:241] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer=<vllm.distributed.device_communicators.shm_broadcast.ShmRingBuffer object at 0x7fcc4047e950>, local_subscribe_port=58779, remote_subscribe_port=None)
+[36m(WorkerDict pid=3516003)[0m before init cache memory allocated: 7.683694592GB, reserved: 7.931428864GB
+[36m(WorkerDict pid=3516003)[0m INFO 03-19 00:15:51 config.py:887] Defaulting to use ray for distributed inference[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m INFO 03-19 00:15:51 config.py:1005] Chunked prefill is enabled with max_num_batched_tokens=8192.[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m WARNING 03-19 00:15:51 config.py:380] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m local rank 0[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516242)[0m INFO 03-19 00:15:53 selector.py:115] Using XFormers backend.[32m [repeated 15x across cluster][0m
+[36m(WorkerDict pid=3516003)[0m after init cache memory allocated: 31.883321344GB, reserved: 32.182894592GB
+[36m(WorkerDict pid=3516242)[0m INFO 03-19 00:15:52 utils.py:1008] Found nccl from library libnccl.so.2[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516242)[0m INFO 03-19 00:15:52 pynccl.py:63] vLLM is using nccl==2.20.5[32m [repeated 7x across cluster][0m
+[36m(WorkerDict pid=3516248)[0m INFO 03-19 00:15:53 shm_broadcast.py:241] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer=<vllm.distributed.device_communicators.shm_broadcast.ShmRingBuffer object at 0x7f9a12528890>, local_subscribe_port=43779, remote_subscribe_port=None)
+[36m(WorkerDict pid=3516003)[0m kwargs: {'n': 5, 'logprobs': 1, 'max_tokens': 8000, 'detokenize': False, 'temperature': 1.0, 'top_k': -1, 'top_p': 1, 'ignore_eos': False}
+[36m(WorkerDict pid=3516003)[0m After building vllm rollout, memory allocated (GB): 26.146944999694824, memory reserved (GB): 29.97265625
+[36m(WorkerDict pid=3516003)[0m After building sharding manager, memory allocated (GB): 26.146944999694824, memory reserved (GB): 29.97265625
+[36m(main_task pid=3512839)[0m Using LocalLogger is deprecated. The constructor API will change 
+[36m(main_task pid=3512839)[0m Checkpoint tracker file does not exist: %s /wang_ssd/zhihanliu/zhihan/verl/checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_4/latest_checkpointed_iteration.txt
+[36m(main_task pid=3512839)[0m Training from scratch
+[36m(WorkerDict pid=3516250)[0m kwargs: {'n': 5, 'logprobs': 1, 'max_tokens': 8000, 'detokenize': False, 'temperature': 1.0, 'top_k': -1, 'top_p': 1, 'ignore_eos': False}[32m [repeated 7x across cluster][0m
+[33m(raylet)[0m The node with node id: 55a7570d89bd1de029616750df7dddca6679b0a7b90014bab0e69a97 and address: 10.14.38.55 and node name: 10.14.38.55 has been marked dead because the detector has missed too many heartbeats from it. This can happen when a 	(1) raylet crashes unexpectedly (OOM, etc.) 
+	(2) raylet has lagging heartbeats due to slow network or busy workload.
+Error executing job with overrides: ['algorithm.adv_estimator=grpo', 'trainer.test_sample_n=4', 'algorithm.optimism_coef=0', 'algorithm.optimistic_actor=False', 'data.train_files=./data/combined/train.parquet', 'data.val_files=[./data/combined/test.parquet,./data/math_r1_500/test.parquet,./data/aime_24_dataset/test.parquet]', 'data.custom_temp_dir=/wang_ssd/zhihanliu/tmp/ray', 'reward_model.reward_manager=prime', 'data.train_batch_size=1024', 'data.val_batch_size=256', 'data.max_prompt_length=1024', 'data.max_response_length=8000', 'actor_rollout_ref.model.path=checkpoints/Open-Reasoner-Zero-7B-alpha0', 'actor_rollout_ref.actor.optim.lr=1e-6', 'actor_rollout_ref.model.use_remove_padding=True', 'actor_rollout_ref.actor.ppo_mini_batch_size=256', 'actor_rollout_ref.actor.use_kl_loss=True', 'actor_rollout_ref.actor.kl_loss_coef=0.001', 'actor_rollout_ref.actor.kl_loss_type=low_var_kl', 'actor_rollout_ref.model.enable_gradient_checkpointing=True', 'actor_rollout_ref.actor.fsdp_config.param_offload=False', 'actor_rollout_ref.actor.fsdp_config.grad_offload=False', 'actor_rollout_ref.actor.fsdp_config.optimizer_offload=False', 'actor_rollout_ref.rollout.tensor_model_parallel_size=4', 'actor_rollout_ref.rollout.name=vllm', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.6', 'actor_rollout_ref.rollout.n=5', 'actor_rollout_ref.actor.use_dynamic_bsz=True', 'actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000', 'actor_rollout_ref.ref.fsdp_config.param_offload=False', 'algorithm.kl_ctrl.kl_coef=0.001', 'trainer.critic_warmup=0', 'trainer.logger=[console,wandb]', 'trainer.project_name=Exploration-Open-Reasoner-Zero-7B', 'trainer.experiment_name=alpha_0_think_sample_4', 'trainer.n_gpus_per_node=8', 'trainer.nnodes=1', 'trainer.default_local_dir=checkpoints/Exploration-Open-Reasoner-Zero-7B/alpha_0_think_sample_4', 'trainer.save_freq=50', 'trainer.test_freq=50', 'trainer.total_epochs=1']
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 240, in <module>
+    main()
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 223, in run_and_report
+    raise ex
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+            ^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 132, in run
+    _ = ret.return_value
+        ^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 128, in main
+    run_ppo(config)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 142, in run_ppo
+    ray.get(main_task.remote(config, compute_score))
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/client_mode_hook.py", line 103, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 2772, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/_private/worker.py", line 919, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ActorUnavailableError): [36mray::main_task()[39m (pid=3512839, ip=10.14.38.55)
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/main_ppo.py", line 236, in main_task
+    trainer.fit()
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/ppo/ray_trainer.py", line 856, in fit
+    val_metrics = self._validate()
+                  ^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/trainer/ppo/ray_trainer.py", line 626, in _validate
+    test_output_gen_batch_padded = self.actor_rollout_wg.generate_sequences(test_gen_batch_padded)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wang_ssd/zhihanliu/zhihan/verl/verl/single_controller/ray/base.py", line 42, in func
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.ActorUnavailableError: The actor b9bf7d8254980512565871a301000000 is unavailable: The actor is temporarily unavailable: RpcError: RPC Error message: Socket closed; RPC Error details: . The task may or maynot have been executed on the actor.
+[33m(raylet)[0m [2025-03-19 00:54:26,562 C 3508199 3508199] node_manager.cc:555: GCS consider this node to be dead. This may happen when GCS is not backed by a DB and restarted or there is data loss in the DB.
+[33m(raylet)[0m *** StackTrace Information ***
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0xc17c7a) [0x56112d7d2c7a] ray::operator<<()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0xc1a0c1) [0x56112d7d50c1] ray::RayLog::~RayLog()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x29fda8) [0x56112ce5ada8] ray::raylet::NodeManager::RegisterGcs()::{lambda()#10}::operator()()::{lambda()#1}::operator()<>()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x29ff23) [0x56112ce5af23] std::_Function_handler<>::_M_invoke()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x4e151e) [0x56112d09c51e] ray::gcs::NodeInfoAccessor::AsyncCheckSelfAlive()::{lambda()#1}::operator()()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x4f7620) [0x56112d0b2620] ray::gcs::NodeInfoAccessor::AsyncCheckAlive()::{lambda()#1}::operator()()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x4dc1b5) [0x56112d0971b5] ray::rpc::ClientCallImpl<>::OnReplyReceived()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x6a0248) [0x56112d25b248] EventTracker::RecordExecution()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x69b6b6) [0x56112d2566b6] boost::asio::detail::completion_handler<>::do_complete()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0xc8c2bb) [0x56112d8472bb] boost::asio::detail::scheduler::do_run_one()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0xc8e849) [0x56112d849849] boost::asio::detail::scheduler::run()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0xc8ed62) [0x56112d849d62] boost::asio::io_context::run()
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x1ecb8f) [0x56112cda7b8f] main
+[33m(raylet)[0m /lib/x86_64-linux-gnu/libc.so.6(+0x29d90) [0x7f5d1a4dfd90]
+[33m(raylet)[0m /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80) [0x7f5d1a4dfe40] __libc_start_main
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x246ec7) [0x56112ce01ec7]
+[33m(raylet)[0m 
+[33m(raylet)[0m /home/zhihanliu/anaconda3/envs/verl/lib/python3.11/site-packages/ray/core/src/ray/raylet/raylet(+0x69b23e) [0x56112d25623e] std::_Function_handler<>::_M_invoke()[32m [repeated 4x across cluster][0m
+[33m(raylet)[0m A worker died or was killed while executing a task by an unexpected system error. To troubleshoot the problem, check the logs for the dead worker. RayTask ID: ffffffffffffffffb9bf7d8254980512565871a301000000 Worker ID: 57b13d70c2949257779f30f8baadaba600d52a47e3b5a9b21dc7e051 Node ID: 55a7570d89bd1de029616750df7dddca6679b0a7b90014bab0e69a97 Worker IP address: 10.14.38.55 Worker port: 39343 Worker PID: 3516003 Worker exit type: SYSTEM_ERROR Worker exit detail: Worker unexpectedly exits with a connection error code 2. End of file. There are some potential root causes. (1) The process is killed by SIGKILL by OOM killer due to high memory usage. (2) ray stop --force is called. (3) The worker is crashed unexpectedly due to SIGSEGV or other unexpected errors.

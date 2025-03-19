@@ -4,7 +4,7 @@ set -x
 #export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
 ALPHA=0
-N_SAMPLE_TIME=16
+N_SAMPLE_TIME=4
 TASK_NAMES=("prime" "math500" "math_dataset")
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 sft_loss_coef=0
@@ -19,7 +19,7 @@ optimistic_actor=False
 #Qwen/Qwen2.5-Math-0.5B
 SAVE_LOCAL_DIR_PREFIX=checkpoints
 PROJECT_NAME=Exploration-Open-Open-Reasoner-Zero-7B
-EXPERIMENT_NAME=alpha_${ALPHA}_think
+EXPERIMENT_NAME=alpha_${ALPHA}_think-sample${N_SAMPLE_TIME}
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
 
 optimism_coeff=0
@@ -77,13 +77,13 @@ python3 -m verl.trainer.main_ppo \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
     data.train_files=./data/combined/train.parquet \
-    data.val_files=['./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet','./data/math_r1_dataset/test.parquet'] \
+    data.val_files=['./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet'] \
     data.custom_temp_dir=$HOME/tmp/ray \
     reward_model.reward_manager=prime \
     data.train_batch_size=1024 \
     data.val_batch_size=256 \
     data.max_prompt_length=1024 \
-    data.max_response_length=7000 \
+    data.max_response_length=8000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -95,13 +95,13 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.grad_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=4 \
     actor_rollout_ref.rollout.name=vllm \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.8 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=5 \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
     actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24000 \
-    actor_rollout_ref.ref.fsdp_config.param_offload=True \
+    actor_rollout_ref.ref.fsdp_config.param_offload=False \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
