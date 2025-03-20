@@ -4,8 +4,8 @@ set -x
 #export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
 ALPHA=0
-N_SAMPLE_TIME=-1
-TASK_NAMES=("prime" "math500" "math_dataset")
+N_SAMPLE_TIME=8
+TASK_NAMES=("prime")
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 sft_loss_coef=0
 REMOTE_DATA_PATH=PRIME-RL/Eurus-2-RL-Data
@@ -62,7 +62,7 @@ echo "Combined tasks: ${TASK_NAMES[@]}"
 python3 data_preprocess/combine_parquet.py --data_dirs ${DATA_PATHS[@]} --output_dir ./data/combined
 python3 data_preprocess/combine_parquet.py --data_dirs ./data/prime --output_dir ./data/combined --split train
 
-TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset" "math_r1_dataset")
+TASK_NAMES_EVAL=("math_r1_500" "aime_24_dataset")
 for TASK_NAME in "${TASK_NAMES_EVAL[@]}"; do
     python3 data_preprocess/${TASK_NAME}.py --local_dir ./data/${TASK_NAME}
 done
@@ -77,13 +77,13 @@ python3 -m verl.trainer.main_ppo \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
     data.train_files=./data/combined/train.parquet \
-    data.val_files=['./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet'] \
+    data.val_files=['./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet'] \
     data.custom_temp_dir=$HOME/tmp/ray \
     reward_model.reward_manager=prime \
     data.train_batch_size=1024 \
     data.val_batch_size=256 \
     data.max_prompt_length=1024 \
-    data.max_response_length=2000 \
+    data.max_response_length=8000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
