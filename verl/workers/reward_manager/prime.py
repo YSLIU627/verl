@@ -47,30 +47,48 @@ import multiprocessing
 import warnings
 import time
 
-def parallel_compute_score(evaluation_func, completions, references, tasks, num_processes=8, extra_info=None, timeout=10):
+import multiprocessing
+import warnings
+from typing import Callable, List, Any
+
+def parallel_compute_score(
+    evaluation_func: Callable,
+    completions: List[str],
+    references: List[str],
+    tasks: List[str],
+    num_processes: int = 8,
+    extra_info: Any = None,
+    timeout: int = 10,
+) -> List[float]:
     manager = multiprocessing.Manager()
-    result_list = manager.list([0.0] * len(completions))
+    result_list = manager.list([0.0] * len(completions))  # 共享结果列表
     semaphore = multiprocessing.Semaphore(num_processes)  # 限制同时运行的进程数
     processes = []
 
-    def worker_wrapper(idx, completion, reference, task):
+    def worker_wrapper(idx: int, completion: str, reference: str, task: str):
         """包装进程执行函数，保证进程结束后释放信号量"""
-        with semaphore:  # 确保不会创建过多并行进程
-            p = multiprocessing.Process(target=_safe_evaluation, args=(evaluation_func, task, completion, reference, result_list, idx, extra_info))
+        with semaphore:  # 限制同时运行的进程数
+            p = multiprocessing.Process(
+                target=_safe_evaluation,
+                args=(evaluation_func, task, completion, reference, result_list, idx, extra_info),
+            )
             p.start()
             processes.append((p, idx))
-
-            p.join(timeout=timeout)
-            if p.is_alive():
-                warnings.warn(f"Timeout when processing completion at index {idx}")
-                p.kill()
-                p.join()
 
     # 创建多个进程
     for idx, (completion, reference, task) in enumerate(zip(completions, references, tasks)):
         worker_wrapper(idx, completion, reference, task)
 
+    # 主进程统一管理进程的等待和超时
+    for p, idx in processes:
+        p.join(timeout=timeout)
+        if p.is_alive():
+            warnings.warn(f"Timeout when processing completion at index {idx}")
+            p.kill()
+            p.join()
+
     return list(result_list)
+
 
 def parallel_compute_score_old(evaluation_func, completions, references, tasks, num_processes=32, extra_info=None, timeout=10):
     manager = multiprocessing.Manager()
@@ -148,7 +166,7 @@ class PrimeRewardManager:
         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
         ground_truth = [data_item.non_tensor_batch['reward_model']['ground_truth'] for data_item in data]
         data_sources = data.non_tensor_batch['data_source']
-        num_processes = min(cpu_count()// 2, 16)
+        num_processes = min(cpu_count()// 2, 32)
         assert len(sequences_str) == len(ground_truth) == len(data_sources)
 
         scores = parallel_compute_score(self.compute_score, sequences_str, ground_truth, data_sources, num_processes=num_processes)
