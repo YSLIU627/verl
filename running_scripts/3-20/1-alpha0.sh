@@ -1,5 +1,5 @@
 set -x
-pip install math verify --no-build-isolation
+pip install math_verify --no-build-isolation
 #export CUDA_VISIBLE_DEVICES=6,7,8,9
 #export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
