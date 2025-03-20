@@ -42,6 +42,9 @@ def _default_compute_score(data_source, solution_str, ground_truth, extra_info=N
     elif "countdown" in data_source:
         from . import countdown
         return countdown.compute_score(solution_str, ground_truth)
+    elif data_source in ['orz_aime2024', 'orz_gpqa_diamond', 'orz_math500', 'orz_dataset']:
+        from . import orz_verifier
+        res = orz_verifier.compute_score(solution_str, ground_truth)
     else:
         raise NotImplementedError
 

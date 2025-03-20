@@ -166,7 +166,7 @@ class PrimeRewardManager:
         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
         ground_truth = [data_item.non_tensor_batch['reward_model']['ground_truth'] for data_item in data]
         data_sources = data.non_tensor_batch['data_source']
-        num_processes = min(cpu_count()// 2, 32)
+        num_processes = min(cpu_count()// 2, 128)
         assert len(sequences_str) == len(ground_truth) == len(data_sources)
 
         scores = parallel_compute_score(self.compute_score, sequences_str, ground_truth, data_sources, num_processes=num_processes)
