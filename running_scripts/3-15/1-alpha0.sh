@@ -4,7 +4,7 @@ set -x
 #export CUDA_VISIBLE_DEVICES=2,3,4,5
 # task name can be selected from [gsm8k, math_dataset, opencoder]
 ALPHA=0
-N_SAMPLE_TIME=4
+N_SAMPLE_TIME=-1
 TASK_NAMES=("prime" "math500" "math_dataset")
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 sft_loss_coef=0
@@ -83,7 +83,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_batch_size=1024 \
     data.val_batch_size=256 \
     data.max_prompt_length=1024 \
-    data.max_response_length=8000 \
+    data.max_response_length=2000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
