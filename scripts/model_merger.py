@@ -37,11 +37,24 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--local_dir', required=True, type = str, help="The path for your saved model")
     parser.add_argument("--hf_upload_path", default=False, type = str, help="The path of the huggingface repo to upload")
+    parser.add_argument('--get_last', action='store_true')
     args = parser.parse_args()
 
     assert not args.local_dir.endswith("huggingface"), "The local_dir should not end with huggingface"
     local_dir = args.local_dir
-
+    if args.get_last:
+        pattern = r'^(.*?)/global_step\d+/.*$'
+        match = re.match(pattern, local_dir)
+        
+        # 如果匹配成功，返回提取的部分；否则返回原字符串
+        if match:
+           local_dir = match.group(1)
+        else:
+           local_dir = local_dir
+        from verl.utils.checkpoint.checkpoint_manager import find_latest_ckpt_path
+        local_dir = find_latest_ckpt_path(local_dir)
+        print(local_dir)
+        local_dir = os.path.join(local_dir, "actor")
     # copy rank zero to find the shape of (dp, fsdp)
     rank = 0
     world_size = 0

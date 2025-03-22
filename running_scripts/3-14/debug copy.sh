@@ -36,7 +36,7 @@ SAVE_LOCAL_DIR_PREFIX=checkpoints
 #-alpha0.2
 #Qwen/Qwen2.5-Math-0.5B
 
-PROJECT_NAME=Exploration-Open-Reasoner-Zero-7B
+PROJECT_NAME=Exploration-Open-Reasoner-Zero-7B333
 EXPERIMENT_NAME=debug
 #MODEL_NAME=extrop/Qwen2.5-Math-7B-Instruct
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}/${PROJECT_NAME}/${EXPERIMENT_NAME}
@@ -71,6 +71,7 @@ export WANDB_API_KEY=4418d996107a448b1bc6c52e433d2dd864b0a016
 
 #'./data/combined/test.parquet','./data/math_r1_500/test.parquet','./data/aime_24_dataset/test.parquet','./data/math_r1_dataset/test.parquet'
 python3 -m verl.trainer.main_ppo \
+    algorithm.adv_estimator=grpo \
     trainer.test_sample_n=1 \
     algorithm.optimism_coef=${optimism_coeff} \
     algorithm.optimistic_actor=${optimistic_actor} \
