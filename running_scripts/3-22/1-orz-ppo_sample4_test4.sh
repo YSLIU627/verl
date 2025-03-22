@@ -9,7 +9,7 @@ pip install math-verify[antlr4_13_2]
 # comment START_IDX and END_IDX if you want to use the whole dataset for the training
 
 SAVE_LOCAL_DIR_PREFIX='checkpoints/'
-PROJECT_NAME=Exploration-Qwen2.5-7B
+PROJECT_NAME=Exploration-Orz-Qwen2.5-7B
 MODEL_NAME=Qwen/Qwen2.5-7B
 EXPERIMENT_NAME=ppo_expectile_${EXPECTILE}_gen4_test4
 SAVE_LOCAL_DIR=${SAVE_LOCAL_DIR_PREFIX}${PROJECT_NAME}/${EXPERIMENT_NAME}
