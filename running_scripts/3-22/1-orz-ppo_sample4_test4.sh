@@ -40,13 +40,13 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 python3 -m verl.trainer.main_ppo \
     algorithm.expectile=${EXPECTILE} \
     algorithm.adv_estimator=gae \
-    algorithm.kl_ctrl.kl_coef=0.001 \
+    algorithm.kl_ctrl.kl_coef=0 \
     reward_model.reward_manager=prime \
     data.custom_temp_dir=$HOME/tmp/ray/  \
     data.train_files=./data/orz_dataset/train.parquet \
     data.val_files=./data/combined/test.parquet \
-    data.train_batch_size=512 \
-    data.val_batch_size=256 \
+    data.train_batch_size=256 \
+    data.val_batch_size=128 \
     data.max_prompt_length=1024 \
     data.max_response_length=8000 \
     actor_rollout_ref.model.path=${MODEL_NAME} \
@@ -86,6 +86,6 @@ python3 -m verl.trainer.main_ppo \
     trainer.default_local_dir=${SAVE_LOCAL_DIR} \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
-    trainer.save_freq=20 \
+    trainer.save_freq=40 \
     trainer.test_freq=20 \
     trainer.test_sample_n=4 $@
